@@ -206,3 +206,16 @@ DROP POLICY IF EXISTS "Public can view published blogs" ON public.blog_posts;
 CREATE POLICY "Public can view published blogs" ON public.blog_posts FOR SELECT USING (published = true);
 
 -- Note: Admin mutating privileges for blog_posts and other structural tables are handled securely via Next.js Server Actions bypassing RLS explicitly using the Supabase Service Role Key.
+
+-- 12. APP SETTINGS TABLE
+CREATE TABLE IF NOT EXISTS public.app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can view settings" ON public.app_settings;
+CREATE POLICY "Public can view settings" ON public.app_settings FOR SELECT USING (true);
+
+INSERT INTO public.app_settings (key, value) VALUES ('admin_signup_enabled', 'true') ON CONFLICT DO NOTHING;

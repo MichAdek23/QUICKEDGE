@@ -1,8 +1,25 @@
 import { registerAdmin } from '@/app/auth/actions';
+import { createClient } from '@/utils/supabase/server';
 
 export default async function AdminSignupPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const searchParams = await props.searchParams;
   const error = searchParams?.error as string | undefined;
+
+  const supabase = await createClient();
+  const { data: setting } = await supabase.from('app_settings').select('value').eq('key', 'admin_signup_enabled').single();
+  const isEnabled = setting?.value === 'true';
+
+  if (!isEnabled) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+         <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem 2rem', maxWidth: '500px' }}>
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" style={{ margin: '0 auto 1.5rem auto' }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem', color: '#f4f4f5' }}>Admin Registration Locked</h1>
+            <p style={{ color: '#a1a1aa', lineHeight: 1.6 }}>Self-service administrator onboarding has been disabled globally by the core platform configuration.</p>
+         </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
