@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -134,4 +135,54 @@ export async function updateProfile(formData: FormData) {
 
   revalidatePath('/dashboard/profile')
   redirect('/dashboard/profile?message=' + encodeURIComponent('Profile saved successfully!'))
+}
+
+export async function registerAdmin(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const full_name = formData.get('full_name') as string;
+  const admin_secret = formData.get('admin_secret') as string;
+
+  if (admin_secret !== process.env.ADMIN_SECRET_KEY) {
+    return redirect('/admin-signup?error=Invalid Secret Key');
+  }
+
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name,
+      },
+    },
+  });
+
+  if (error) {
+    return redirect(`/admin-signup?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (data.user) {
+    // We must bypass RLS to force role to admin directly into the protected table.
+    const supabaseAdmin = createSupabaseAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // Wait slightly to guarantee the Postgres trigger 'handle_new_user' executed.
+    await new Promise(r => setTimeout(r, 1000));
+
+    const { error: elevateError } = await supabaseAdmin
+      .from('profiles')
+      .update({ role: 'admin' })
+      .eq('id', data.user.id);
+
+    if (elevateError) {
+      console.error('Failed to elevate role:', elevateError);
+      return redirect('/admin-signup?error=Account created but failed to elevate to admin. Check Service Key');
+    }
+  }
+
+  redirect('/admin');
 }

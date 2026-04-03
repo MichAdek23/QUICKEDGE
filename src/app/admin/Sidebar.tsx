@@ -1,0 +1,58 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
+  const menu = [
+    { name: 'Analytics', path: '/admin', icon: <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/> },
+    { name: 'Users & Telemetry', path: '/admin/users', icon: <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/> },
+    { name: 'Content Library', path: '/admin/materials', icon: <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/> },
+    { name: 'Blog Engine', path: '/admin/blog', icon: <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/> },
+  ];
+
+  return (
+    <aside style={{ width: '280px', borderRight: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(10px)', padding: '2rem 1.5rem' }}>
+       <div style={{ marginBottom: '3rem' }}>
+         <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.1em', background: 'linear-gradient(90deg, #ef4444, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+           COMMAND CENTER
+         </h2>
+         <p style={{ color: '#a1a1aa', fontSize: '0.8rem', marginTop: '0.2rem', textTransform: 'uppercase' }}>Admin Access Only</p>
+       </div>
+
+       <nav style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+         {menu.map((item) => {
+            const isActive = pathname === item.path;
+            return (
+              <Link key={item.path} href={item.path} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', borderRadius: '12px', background: isActive ? 'rgba(239, 68, 68, 0.1)' : 'transparent', color: isActive ? '#ef4444' : '#a1a1aa', border: isActive ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid transparent', textDecoration: 'none', transition: 'all 0.2s', fontWeight: isActive ? 600 : 400 }}>
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{item.icon}</svg>
+                 {item.name}
+              </Link>
+            )
+         })}
+       </nav>
+
+       <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '1.5rem' }}>
+         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', color: '#e4e4e7', textDecoration: 'none', fontSize: '0.9rem' }}>
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+           Back to App
+         </Link>
+         <button onClick={handleLogout} style={{ border: 'none', background: 'none', color: '#ef4444', width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', fontSize: '0.9rem', cursor: 'pointer', marginTop: '0.5rem' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            End Session
+         </button>
+       </div>
+    </aside>
+  );
+}

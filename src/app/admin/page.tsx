@@ -1,93 +1,74 @@
 import { createClient } from '@/utils/supabase/server';
-import { redirect } from 'next/navigation';
 
-export default async function AdminDashboardPage() {
-  let supabase;
-  let students: any[] = [];
-  let user;
+export default async function AdminDashboardOverview() {
+  const supabase = await createClient();
+
+  // Aggregate Data
+  const { count: studentCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student');
+  const { count: premiumCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_subscribed', true);
   
-  try {
-    supabase = await createClient();
-    const { data: authData } = await supabase.auth.getUser();
-    user = authData.user;
-    
-    if (!user) {
-      redirect('/login');
-    }
+  const { data: payments } = await supabase.from('payments').select('amount').eq('status', 'success');
+  const totalRevenue = payments?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0;
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+  const { count: materialsCount } = await supabase.from('materials').select('*', { count: 'exact', head: true });
+  const { count: activeQuizzes } = await supabase.from('quizzes').select('*', { count: 'exact', head: true });
 
-    if (profile?.role !== 'admin') {
-      redirect('/dashboard');
-    }
-
-    // Fetch all student profiles
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*')
-      .neq('role', 'admin')
-      .order('created_at', { ascending: false });
-
-    if (profilesData) students = profilesData;
-
-  } catch (error) {
-     console.error('Database connection failed.');
-  }
+  const conversionRate = studentCount ? ((premiumCount || 0) / studentCount * 100).toFixed(1) : '0.0';
 
   return (
-    <main style={{ minHeight: '100vh', padding: '4rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '3rem', borderBottom: '1px solid var(--card-border)', paddingBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Admin Dashboard</h1>
-          <p style={{ color: '#a1a1aa' }}>Monitor your students and platform metrics.</p>
-        </div>
-        <a href="/dashboard" className="btn-secondary">Back to App</a>
-      </header>
+    <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>Global Analytics</h1>
+      <p style={{ color: '#a1a1aa', fontSize: '1.1rem', marginBottom: '3rem' }}>Real-time telemetry for the Quickedge ecosystem.</p>
 
-      <div className="glass-panel" style={{ overflowX: 'auto' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Registered Students</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
+        
+        <div className="glass-panel" style={{ padding: '2rem', borderTop: '4px solid #ef4444' }}>
+          <h3 style={{ color: '#a1a1aa', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Gross Revenue</h3>
+          <div style={{ fontSize: '3rem', fontWeight: 900, color: '#f4f4f5' }}>
+            ₦{totalRevenue.toLocaleString()}
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '2rem', borderTop: '4px solid #10b981' }}>
+          <h3 style={{ color: '#a1a1aa', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Conversion Rate</h3>
+          <div style={{ fontSize: '3rem', fontWeight: 900, color: '#f4f4f5', display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            {premiumCount} <span style={{ fontSize: '1rem', color: '#10b981' }}>({conversionRate}% paid)</span>
+          </div>
+          <p style={{ color: '#52525b', fontSize: '0.8rem', marginTop: '0.5rem' }}>out of {studentCount} total students</p>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '2rem', borderTop: '4px solid #8b5cf6' }}>
+          <h3 style={{ color: '#a1a1aa', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Active Infrastructure</h3>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f4f4f5', marginBottom: '0.5rem' }}>
+            {materialsCount} <span style={{ fontSize: '1rem', fontWeight: 'normal', color: '#a1a1aa' }}>Materials Deployed</span>
+          </div>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f4f4f5' }}>
+            {activeQuizzes} <span style={{ fontSize: '1rem', fontWeight: 'normal', color: '#a1a1aa' }}>Quizzes Live</span>
+          </div>
+        </div>
+
+      </div>
+
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Recent Platform Ledger</h2>
+      <div className="glass-panel" style={{ overflow: 'hidden', padding: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--card-border)' }}>
-              <th style={{ padding: '1rem', color: '#a1a1aa' }}>Name / ID</th>
-              <th style={{ padding: '1rem', color: '#a1a1aa' }}>Status</th>
-              <th style={{ padding: '1rem', color: '#a1a1aa' }}>Joined Date</th>
+            <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--card-border)' }}>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Amount</th>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Status</th>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Timestamp</th>
             </tr>
           </thead>
           <tbody>
-            {students.length === 0 ? (
-              <tr>
-                <td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa' }}>
-                  No students found.
-                </td>
+            {(payments || []).slice(0, 8).map((p: any, i: number) => (
+              <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                 <td style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>₦{Number(p.amount).toLocaleString()}</td>
+                 <td style={{ padding: '1rem 1.5rem' }}><span style={{ color: '#34d399', background: 'rgba(16, 185, 129, 0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem' }}>Success</span></td>
+                 <td style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Recent</td>
               </tr>
-            ) : (
-              students.map(student => (
-                <tr key={student.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: 600 }}>{student.full_name || 'Anonymous User'}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>{student.id.substring(0, 8)}...</div>
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    {student.is_subscribed ? (
-                      <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '999px', fontSize: '0.85rem' }}>
-                        Subscribed (1500 NGN)
-                      </span>
-                    ) : (
-                      <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', background: 'rgba(244, 114, 182, 0.2)', color: '#f472b6', borderRadius: '999px', fontSize: '0.85rem' }}>
-                        Unpaid
-                      </span>
-                    )}
-                  </td>
-                  <td style={{ padding: '1rem', color: '#a1a1aa' }}>
-                    {new Date(student.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))
+            ))}
+            {!payments || payments.length === 0 && (
+              <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa' }}>No payments processed yet.</td></tr>
             )}
           </tbody>
         </table>

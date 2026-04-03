@@ -188,3 +188,21 @@ BEGIN
    ALTER PUBLICATION supabase_realtime ADD TABLE payments;
 EXCEPTION WHEN duplicate_object THEN null; 
 END $$;
+
+-- 11. BLOG POSTS TABLE
+CREATE TABLE IF NOT EXISTS public.blog_posts (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  author_id UUID REFERENCES public.profiles(id) DEFAULT auth.uid() NOT NULL,
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  content TEXT NOT NULL,
+  thumbnail_url TEXT,
+  published BOOLEAN DEFAULT false NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can view published blogs" ON public.blog_posts;
+CREATE POLICY "Public can view published blogs" ON public.blog_posts FOR SELECT USING (published = true);
+
+-- Note: Admin mutating privileges for blog_posts and other structural tables are handled securely via Next.js Server Actions bypassing RLS explicitly using the Supabase Service Role Key.
