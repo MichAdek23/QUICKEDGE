@@ -1,0 +1,177 @@
+'use client';
+
+import { useState } from 'react';
+import SubscriptionCTA from '@/app/dashboard/SubscriptionCTA';
+import { createClient } from '@/utils/supabase/client';
+
+export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { quiz: any, isSubscribed: boolean, userEmail: string | undefined, userId: string }) {
+  const [started, setStarted] = useState(false);
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: number }>({});
+  const [completed, setCompleted] = useState(false);
+  const [score, setScore] = useState(0);
+  
+  const supabase = createClient();
+  const questions = quiz.quiz_questions || [];
+
+  if (!isSubscribed) {
+    return (
+       <div className="glass-panel" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ opacity: 0.1, filter: 'blur(3px)', userSelect: 'none', pointerEvents: 'none' }}>
+             <h3 style={{ fontSize: '1.4rem' }}>{quiz.title}</h3>
+             <ul style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+               <li style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>Hidden Question Block</li>
+               <li style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>Hidden Question Block</li>
+             </ul>
+          </div>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', padding: '2rem', textAlign: 'center' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f472b6" strokeWidth="2" style={{ marginBottom: '1rem' }}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Premium Quiz Locked</h4>
+            <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '300px' }}>Subscribe to unlock this comprehensive assessment and track your grading.</p>
+            <SubscriptionCTA userEmail={userEmail} userId={userId} />
+          </div>
+       </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="glass-panel" style={{ padding: '2rem', color: '#a1a1aa' }}>
+        <h3>{quiz.title}</h3>
+        <p>No questions have been configured for this quiz yet.</p>
+      </div>
+    );
+  }
+
+  const handleSelectOption = (questionId: string, optionIdx: number) => {
+    setSelectedAnswers(prev => ({ ...prev, [questionId]: optionIdx }));
+  };
+
+  const submitQuiz = async () => {
+    // Calculate Score locally for immediate feedback
+    let calculatedScore = 0;
+    questions.forEach((q: any) => {
+       if (selectedAnswers[q.id] === q.correct_option) {
+         calculatedScore += 1;
+       }
+    });
+
+    setScore(calculatedScore);
+    setCompleted(true);
+
+    // Save to database
+    try {
+       await supabase.from('quiz_attempts').insert({
+          quiz_id: quiz.id,
+          user_id: userId,
+          score: calculatedScore,
+          total: questions.length
+       });
+    } catch (e) {
+       console.error("Failed to log score", e);
+    }
+  };
+
+  if (completed) {
+     const percentage = (score / questions.length) * 100;
+     const passed = percentage >= 70;
+     
+     return (
+       <div className="glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center', borderTop: passed ? '4px solid #10b981' : '4px solid #ef4444' }}>
+          <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem', color: passed ? '#10b981' : '#f472b6' }}>
+            {passed ? 'Outstanding!' : 'Keep Practicing!'}
+          </h3>
+          <p style={{ fontSize: '1.2rem', color: '#e4e4e7', marginBottom: '2rem' }}>You scored {score} out of {questions.length} ({percentage.toFixed(0)}%)</p>
+          <button onClick={() => { setCompleted(false); setSelectedAnswers({}); setCurrentQuestionIdx(0); }} className="btn-secondary">
+             Retake Quiz
+          </button>
+       </div>
+     );
+  }
+
+  if (!started) {
+     return (
+       <div className="glass-panel" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>{quiz.title}</h3>
+            <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>{questions.length} multiple choice questions.</p>
+          </div>
+          <button onClick={() => setStarted(true)} className="btn-primary" style={{ padding: '0.75rem 2rem' }}>
+            Start Quiz
+          </button>
+       </div>
+     );
+  }
+
+  const currentQ = questions[currentQuestionIdx];
+  const isLastQuestion = currentQuestionIdx === questions.length - 1;
+
+  return (
+    <div className="glass-panel" style={{ padding: '2.5rem' }}>
+       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', fontSize: '0.9rem', color: '#a1a1aa', fontWeight: 600 }}>
+         <span>Question {currentQuestionIdx + 1} of {questions.length}</span>
+         <span>{((currentQuestionIdx / questions.length) * 100).toFixed(0)}% Completed</span>
+       </div>
+       
+       <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#f4f4f5', marginBottom: '2rem', lineHeight: 1.5 }}>
+         {currentQ.question_text}
+       </h3>
+
+       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
+         {currentQ.options.map((option: string, idx: number) => {
+            const isSelected = selectedAnswers[currentQ.id] === idx;
+            return (
+              <button 
+                key={idx} 
+                onClick={() => handleSelectOption(currentQ.id, idx)}
+                style={{ 
+                   padding: '1.25rem', 
+                   textAlign: 'left', 
+                   background: isSelected ? 'rgba(109, 40, 217, 0.2)' : 'rgba(255,255,255,0.03)', 
+                   border: isSelected ? '1px solid var(--primary)' : '1px solid var(--card-border)',
+                   borderRadius: '12px',
+                   color: isSelected ? 'white' : '#e4e4e7',
+                   cursor: 'pointer',
+                   transition: 'all 0.2s'
+                }}
+              >
+                 <span style={{ display: 'inline-block', width: '30px', fontWeight: 'bold', color: isSelected ? 'var(--primary)' : '#a1a1aa' }}>
+                   {String.fromCharCode(65 + idx)}.
+                 </span>
+                 {option}
+              </button>
+            )
+         })}
+       </div>
+
+       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <button 
+            disabled={currentQuestionIdx === 0} 
+            onClick={() => setCurrentQuestionIdx(prev => prev - 1)}
+            className="btn-secondary"
+            style={{ opacity: currentQuestionIdx === 0 ? 0 : 1 }}
+          >
+             Previous
+          </button>
+          
+          {isLastQuestion ? (
+            <button 
+               onClick={submitQuiz}
+               disabled={selectedAnswers[currentQ.id] === undefined}
+               className="btn-primary"
+            >
+               Submit Answers
+            </button>
+          ) : (
+            <button 
+               onClick={() => setCurrentQuestionIdx(prev => prev + 1)}
+               disabled={selectedAnswers[currentQ.id] === undefined}
+               className="btn-primary"
+            >
+               Next Question
+            </button>
+          )}
+       </div>
+    </div>
+  );
+}
