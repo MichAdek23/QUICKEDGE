@@ -23,6 +23,12 @@ export async function deployQuizWithQuestions(formData: FormData) {
 
     const supabaseAdmin = getAdminClient();
 
+    // 0. Defensive Check: Does a quiz already exist for this material?
+    const { data: existing } = await supabaseAdmin.from('quizzes').select('id').eq('material_id', materialId);
+    if (existing && existing.length > 0) {
+       throw new Error("CRITICAL FAILURE: This material already has an active quiz attached. 1-to-1 Mapping Enforced.");
+    }
+
     // 1. Create the base quiz matrix
     const { data: quizData, error: quizError } = await supabaseAdmin
        .from('quizzes')

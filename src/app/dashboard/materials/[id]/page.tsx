@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import SubscriptionCTA from '@/app/dashboard/SubscriptionCTA';
-import QuizRunner from './QuizRunner';
+import Link from 'next/link';
 
 export default async function MaterialDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -96,14 +96,27 @@ export default async function MaterialDetailsPage(props: { params: Promise<{ id:
          </div>
        )}
 
-       {/* Detailed Quiz Runner Section */}
+       {/* Secure Assessment Portal Hook */}
        {quizzes && quizzes.length > 0 && (
          <div style={{ marginTop: '5rem' }}>
-           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem', borderBottom: '1px solid var(--card-border)', paddingBottom: '1rem' }}>Knowledge Check Quizzes</h2>
+           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '2rem', borderBottom: '1px solid var(--card-border)', paddingBottom: '1rem' }}>Knowledge Assessments Available</h2>
            
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
              {quizzes.map((quiz: any) => (
-               <QuizRunner key={quiz.id} quiz={quiz} isSubscribed={isSubscribed} userEmail={user.email} userId={user.id} />
+               <div key={quiz.id} className="glass-panel" style={{ padding: '2rem', borderLeft: '4px solid #8b5cf6' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{quiz.title}</h3>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Mandatory strict-testing environment. 1 attempt permitted.</p>
+                  
+                  {isSubscribed ? (
+                     <Link href={`/dashboard/exams/${quiz.id}`} className="btn-primary" style={{ display: 'inline-block', padding: '0.75rem 1.5rem', textDecoration: 'none', fontSize: '0.9rem' }}>
+                        Begin Assessment
+                     </Link>
+                  ) : (
+                     <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.05)', color: '#71717a', fontSize: '0.85rem', borderRadius: '8px', textAlign: 'center' }}>
+                        Premium Only
+                     </div>
+                  )}
+               </div>
              ))}
            </div>
          </div>

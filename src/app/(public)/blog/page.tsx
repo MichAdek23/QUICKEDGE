@@ -10,6 +10,7 @@ export default async function BlogIndexPage() {
     .from('blog_posts')
     .select('*, profiles(full_name, avatar_url)')
     .eq('published', true)
+    .eq('is_archived', false)
     .order('created_at', { ascending: false });
 
   return (

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { deployQuizWithQuestions } from './actions';
 
-export default function QuizBuilder({ materials }: { materials: any[] }) {
+export default function QuizBuilder({ materials, onCancel }: { materials: any[], onCancel?: () => void }) {
   const [materialId, setMaterialId] = useState('');
   const [title, setTitle] = useState('');
   const [questions, setQuestions] = useState([{ question_text: '', options: ['', '', '', ''], correct_option: 0 }]);
@@ -62,6 +62,7 @@ export default function QuizBuilder({ materials }: { materials: any[] }) {
        setTitle('');
        setMaterialId('');
        setQuestions([{ question_text: '', options: ['', '', '', ''], correct_option: 0 }]);
+       if (onCancel) onCancel(); // Route back!
     }
     setIsDeploying(false);
   };
@@ -134,7 +135,6 @@ export default function QuizBuilder({ materials }: { materials: any[] }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Add Alternative Question
           </button>
-          
           <button onClick={handleDeploy} disabled={isDeploying} type="button" className="btn-primary" style={{ padding: '0.75rem 2.5rem', fontSize: '1rem', fontWeight: 600 }}>
              {isDeploying ? 'Deploying Payload...' : 'Execute Deployment'}
           </button>

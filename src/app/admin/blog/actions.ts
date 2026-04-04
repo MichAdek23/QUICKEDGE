@@ -11,12 +11,15 @@ const getAdminClient = () => {
     );
 };
 
-export async function createBlogPost(formData: FormData) {
+export async function upsertBlogPost(formData: FormData) {
   try {
+    const id = formData.get('id') as string;
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
     const rawFile = formData.get('thumbnail');
+    const isDraft = formData.get('isDraft') === 'true';
 
+    // Advanced Slugification keeping it completely safe
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
     const supabase = await createClient();
@@ -40,30 +43,46 @@ export async function createBlogPost(formData: FormData) {
       thumbnail_url = publicUrlData.publicUrl;
     }
 
-    const { error } = await supabaseAdmin.from('blog_posts').insert({
+    const payload: any = {
         title,
         content,
         slug,
-        thumbnail_url,
-        published: true,
+        published: !isDraft,
         author_id: authData.user?.id
-    });
-    
-    if (error) throw error;
+    };
+
+    if (thumbnail_url) payload.thumbnail_url = thumbnail_url;
+
+    if (id && id !== 'new') {
+        const { error } = await supabaseAdmin.from('blog_posts').update(payload).eq('id', id);
+        if (error) throw error;
+    } else {
+        const { error } = await supabaseAdmin.from('blog_posts').insert(payload);
+        if (error) throw error;
+    }
 
     revalidatePath('/admin/blog');
     revalidatePath('/blog');
-  } catch (error) {
+    return { success: true };
+  } catch (error: any) {
     console.error("Failed to post blog:", error);
+    return { error: error.message };
   }
 }
 
-export async function deleteBlogPost(formData: FormData) {
-  const id = formData.get('id') as string;
+export async function toggleBlogPostStatus(id: string, targetState: boolean) {
   const supabaseAdmin = getAdminClient();
-  
-  const { error } = await supabaseAdmin.from('blog_posts').delete().eq('id', id);
-  if (error) console.error("Failed to delete blog:", error);
+  const { error } = await supabaseAdmin.from('blog_posts').update({ published: targetState }).eq('id', id);
+  if (error) console.error("Toggle status error:", error);
+  revalidatePath('/admin/blog');
+  revalidatePath('/blog');
+}
+
+export async function deleteBlogPost(id: string) {
+  const supabaseAdmin = getAdminClient();
+  // Execute Soft Delete architecture
+  const { error } = await supabaseAdmin.from('blog_posts').update({ is_archived: true }).eq('id', id);
+  if (error) console.error("Failed to soft-delete blog:", error);
 
   revalidatePath('/admin/blog');
   revalidatePath('/blog');
