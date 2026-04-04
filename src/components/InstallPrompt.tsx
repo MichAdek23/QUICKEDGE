@@ -9,13 +9,16 @@ export default function InstallPrompt() {
   const [hasDismissed, setHasDismissed] = useState(false);
 
   useEffect(() => {
-    // Chrome strictly requires HTTPS or exactly localhost to fire this
+    // Check if the trap caught it before hydration
+    if ((window as any).deferredPWAInstallPrompt) {
+      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+      setIsReadyForInstall(true);
+    }
+
+    // Still listen in case it fires later
     const handler = (e: Event) => {
-      // Prevent the mini-infobar from appearing automatically on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
-      // Update UI notify the user they can install the PWA
       setIsReadyForInstall(true);
     };
 
