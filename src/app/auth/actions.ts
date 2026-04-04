@@ -13,10 +13,29 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { error, data: authData } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
     redirect('/login?error=' + encodeURIComponent(error.message))
+  }
+
+  if (authData.user) {
+    // Elevate query to use backend service role to bypass instantaneous session propagation delays
+    const supabaseAdmin = createSupabaseAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+      
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', authData.user.id)
+      .single();
+
+    if (profile?.role === 'admin') {
+      revalidatePath('/admin', 'layout')
+      redirect('/admin')
+    }
   }
 
   revalidatePath('/dashboard', 'layout')
@@ -144,45 +163,68 @@ export async function registerAdmin(formData: FormData) {
   const admin_secret = formData.get('admin_secret') as string;
 
   if (admin_secret !== process.env.ADMIN_SECRET_KEY) {
-    return redirect('/admin-signup?error=Invalid Secret Key');
+    return redirect('/admin-signup?error=' + encodeURIComponent('Invalid Secret Key'));
   }
 
-  const supabase = await createClient();
-  
-  const { data, error } = await supabase.auth.signUp({
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+     return redirect('/admin-signup?error=' + encodeURIComponent('System Error: Missing Environment Administration Key'));
+  }
+
+  const supabaseAdmin = createSupabaseAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceKey,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+
+  // 1. Create user using Admin API to instantly bypass email confirmations
+  const { data: adminUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: {
-        full_name,
-      },
-    },
+    email_confirm: true,
+    user_metadata: { full_name }
   });
 
-  if (error) {
-    return redirect(`/admin-signup?error=${encodeURIComponent(error.message)}`);
+  if (createError) {
+    return redirect(`/admin-signup?error=${encodeURIComponent(createError.message)}`);
   }
 
-  if (data.user) {
-    // We must bypass RLS to force role to admin directly into the protected table.
-    const supabaseAdmin = createSupabaseAdminClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    // Wait slightly to guarantee the Postgres trigger 'handle_new_user' executed.
-    await new Promise(r => setTimeout(r, 1000));
-
+  if (adminUser.user) {
+    // 2. Bruteforce Upsert the Profile explicitly to 'admin' using the service role key.
+    // This fully bypasses any delay or silent failure in the handle_new_user postgres trigger!
     const { error: elevateError } = await supabaseAdmin
       .from('profiles')
-      .update({ role: 'admin' })
-      .eq('id', data.user.id);
+      .upsert({
+         id: adminUser.user.id,
+         full_name: full_name,
+         role: 'admin',
+      }, { onConflict: 'id' });
 
     if (elevateError) {
-      console.error('Failed to elevate role:', elevateError);
-      return redirect('/admin-signup?error=Account created but failed to elevate to admin. Check Service Key');
+      console.error("Upsert Failure Diagnostics:", elevateError);
+      return redirect('/admin-signup?error=' + encodeURIComponent('Role elevation failed: ' + elevateError.message));
     }
   }
 
+  // 3. Manually sign them into the local NextJS client session so the cookies are set!
+  const supabase = await createClient();
+  
+  // Wipe any potentially lingering ghost sessions strictly from the client first
+  await supabase.auth.signOut();
+  
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (signInError) {
+     return redirect('/login?message=' + encodeURIComponent('Admin account created successfully! Please log in.'));
+  }
+
+  // 4. Forcibly destroy any stale NextJS internal layout cache before transporting
+  revalidatePath('/admin', 'layout');
+  revalidatePath('/dashboard', 'layout');
+
+  // 5. Force transport to Admin Dashboard
   redirect('/admin');
 }

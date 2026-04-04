@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { createBlogPost, deleteBlogPost } from './actions';
+import { deleteBlogPost } from './actions';
+import BlogEditor from './BlogEditor';
 
 export default async function BlogAdminPage() {
   const supabase = await createClient();
@@ -17,17 +18,7 @@ export default async function BlogAdminPage() {
          <div>
             <div className="glass-panel">
                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.5rem', color: '#f4f4f5' }}>Draft New Article</h2>
-               <form action={createBlogPost} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Catchy Title SEO</label>
-                    <input type="text" name="title" required className="input-field" placeholder="E.g. Top 5 Forex Strategies..." />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Rich Content (Markdown/HTML Support)</label>
-                    <textarea name="content" required className="input-field" rows={12} placeholder="Write your massive blog post here..."></textarea>
-                  </div>
-                  <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem', background: 'linear-gradient(45deg, #10b981, #059669)' }}>Publish to World</button>
-               </form>
+               <BlogEditor />
             </div>
          </div>
 

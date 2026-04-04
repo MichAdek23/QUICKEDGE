@@ -37,7 +37,14 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const protectedRoutes = ['/dashboard', '/admin'];
-  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+  
+  if (request.nextUrl.pathname === '/admin-signup') {
+    return supabaseResponse;
+  }
+
+  const isProtectedRoute = protectedRoutes.some(route => {
+    return request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(`${route}/`);
+  });
 
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone()

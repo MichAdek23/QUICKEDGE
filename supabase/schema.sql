@@ -98,8 +98,11 @@ BEGIN
     new.raw_user_meta_data->>'avatar_url'
   );
   RETURN new;
+EXCEPTION WHEN OTHERS THEN
+  -- Ensures the auth user is successfully saved even if the profiles table is misconfigured or desynced
+  RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -219,3 +222,19 @@ DROP POLICY IF EXISTS "Public can view settings" ON public.app_settings;
 CREATE POLICY "Public can view settings" ON public.app_settings FOR SELECT USING (true);
 
 INSERT INTO public.app_settings (key, value) VALUES ('admin_signup_enabled', 'true') ON CONFLICT DO NOTHING;
+
+-- 13. GLOBAL REALTIME MATRIX
+-- Safely injects every newly generated table into the Supabase realtime pipeline
+DO $$ 
+DECLARE
+  target_table text;
+BEGIN
+  FOR target_table IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    IF target_table NOT IN ('app_settings') THEN
+      BEGIN
+        EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', target_table);
+      EXCEPTION WHEN duplicate_object THEN null; -- Safely ignore if already assigned
+      END;
+    END IF;
+  END LOOP;
+END $$;

@@ -13,6 +13,8 @@ export default async function AdminDashboardOverview() {
   const { count: materialsCount } = await supabase.from('materials').select('*', { count: 'exact', head: true });
   const { count: activeQuizzes } = await supabase.from('quizzes').select('*', { count: 'exact', head: true });
 
+  const { data: recentProfiles } = await supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(6);
+
   const conversionRate = studentCount ? ((premiumCount || 0) / studentCount * 100).toFixed(1) : '0.0';
 
   return (
@@ -70,8 +72,26 @@ export default async function AdminDashboardOverview() {
             {!payments || payments.length === 0 && (
               <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa' }}>No payments processed yet.</td></tr>
             )}
-          </tbody>
+           </tbody>
         </table>
+      </div>
+
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4rem', marginBottom: '1.5rem' }}>Recent User Signups</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1.5rem' }}>
+        {(recentProfiles || []).map((prof: any) => (
+           <div key={prof.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f4f4f5', fontWeight: 'bold' }}>
+                 {prof.full_name ? prof.full_name[0].toUpperCase() : 'U'}
+              </div>
+              <div style={{ overflow: 'hidden' }}>
+                 <div style={{ fontWeight: 600, color: '#f4f4f5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prof.full_name || 'Anonymous User'}</div>
+                 <div style={{ fontSize: '0.8rem', color: prof.role === 'admin' ? '#ef4444' : '#a1a1aa', textTransform: 'uppercase' }}>{prof.role}</div>
+              </div>
+           </div>
+        ))}
+        {!recentProfiles || recentProfiles.length === 0 && (
+           <p style={{ color: '#a1a1aa' }}>No user profiles detected.</p>
+        )}
       </div>
     </main>
   );

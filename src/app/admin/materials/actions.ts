@@ -11,18 +11,48 @@ const getAdminClient = () => {
 };
 
 export async function createMaterial(formData: FormData) {
-  const title = formData.get('title') as string;
-  const description = formData.get('description') as string;
-  const url = formData.get('url') as string;
-  const type = formData.get('type') as string;
+  try {
+    const title = formData.get('title') as string;
+    const description = formData.get('description') as string;
+    let url = formData.get('url') as string;
+    const type = formData.get('type') as string;
+    const rawFile = formData.get('file');
 
-  const supabaseAdmin = getAdminClient();
-  const { error } = await supabaseAdmin.from('materials').insert({ title, description, url, type });
-  
-  if (error) console.error("Failed to insert material:", error);
+    const supabaseAdmin = getAdminClient();
 
-  revalidatePath('/admin/materials');
-  revalidatePath('/dashboard');
+    // Check if it's genuinely a file object and has bytes
+    if (rawFile && typeof rawFile === 'object' && 'size' in rawFile && (rawFile as File).size > 0) {
+      const file = rawFile as File;
+      const fileExt = file.name?.split('.').pop() || 'media';
+      const filePath = `deployments/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+         .from('materials')
+         .upload(filePath, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+         
+      if (uploadError) {
+          console.error("CRITICAL STORAGE FAULT:", uploadError);
+          throw new Error('Failed to upload file to storage');
+      }
+      
+      const { data: publicUrlData } = supabaseAdmin.storage.from('materials').getPublicUrl(filePath);
+      url = publicUrlData.publicUrl;
+    }
+
+    if (!url) {
+      throw new Error("You must provide either a Media File OR a Remote URL.");
+    }
+
+    const { error } = await supabaseAdmin.from('materials').insert({ title, description, url, type });
+    if (error) throw error;
+
+    revalidatePath('/admin/materials');
+    revalidatePath('/dashboard');
+  } catch (error: any) {
+    console.error("SERVER ACTION ERROR:", error);
+    // Returning void to comply with NextJS <form action> Promise<void> requirement
+    return;
+  }
 }
 
 export async function deleteMaterial(formData: FormData) {

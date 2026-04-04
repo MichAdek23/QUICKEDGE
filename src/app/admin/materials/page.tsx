@@ -16,14 +16,18 @@ export default async function MaterialsCMSPage() {
          <div>
             <div className="glass-panel">
                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.5rem', color: '#f4f4f5' }}>Deploy Material</h2>
-               <form action={createMaterial} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+               <form action={createMaterial} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
                     <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Title</label>
                     <input type="text" name="title" required className="input-field" placeholder="E.g. Advanced Forex PDF" />
                   </div>
                   <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>File URL (Drive/S3/YouTube)</label>
-                    <input type="url" name="url" required className="input-field" placeholder="https://..." />
+                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Media (Direct File Upload)</label>
+                    <input type="file" name="file" accept="video/*,application/pdf,image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>OR Remote Media URL (YouTube/Drive)</label>
+                    <input type="url" name="url" className="input-field" placeholder="https://..." />
                   </div>
                   <div>
                     <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Type</label>

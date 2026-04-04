@@ -12,27 +12,50 @@ const getAdminClient = () => {
 };
 
 export async function createBlogPost(formData: FormData) {
-  const title = formData.get('title') as string;
-  const content = formData.get('content') as string;
-  // Make a clean SEO-friendly slug
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  try {
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+    const rawFile = formData.get('thumbnail');
 
-  const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-  const supabaseAdmin = getAdminClient();
-  const { error } = await supabaseAdmin.from('blog_posts').insert({
-      title,
-      content,
-      slug,
-      published: true,
-      author_id: authData.user?.id
-  });
-  
-  if (error) console.error("Failed to post blog:", error);
+    const supabase = await createClient();
+    const { data: authData } = await supabase.auth.getUser();
+    const supabaseAdmin = getAdminClient();
 
-  revalidatePath('/admin/blog');
-  revalidatePath('/blog');
+    let thumbnail_url = null;
+
+    if (rawFile && typeof rawFile === 'object' && 'size' in rawFile && (rawFile as File).size > 0) {
+      const file = rawFile as File;
+      const fileExt = file.name?.split('.').pop() || 'jpg';
+      const filePath = `blog_thumbnails/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+         .from('materials')
+         .upload(filePath, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+         
+      if (uploadError) throw uploadError;
+      
+      const { data: publicUrlData } = supabaseAdmin.storage.from('materials').getPublicUrl(filePath);
+      thumbnail_url = publicUrlData.publicUrl;
+    }
+
+    const { error } = await supabaseAdmin.from('blog_posts').insert({
+        title,
+        content,
+        slug,
+        thumbnail_url,
+        published: true,
+        author_id: authData.user?.id
+    });
+    
+    if (error) throw error;
+
+    revalidatePath('/admin/blog');
+    revalidatePath('/blog');
+  } catch (error) {
+    console.error("Failed to post blog:", error);
+  }
 }
 
 export async function deleteBlogPost(formData: FormData) {
@@ -44,4 +67,29 @@ export async function deleteBlogPost(formData: FormData) {
 
   revalidatePath('/admin/blog');
   revalidatePath('/blog');
+}
+
+// Rapid Inline API for the Markdown Editor
+export async function uploadInlineImage(formData: FormData) {
+  const rawFile = formData.get('file');
+  if (rawFile && typeof rawFile === 'object' && 'size' in rawFile && (rawFile as File).size > 0) {
+     const file = rawFile as File;
+     const supabaseAdmin = getAdminClient();
+     
+     const fileExt = file.name?.split('.').pop() || 'jpg';
+     const filePath = `blog_inline/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+     
+     const { error: uploadError } = await supabaseAdmin.storage
+         .from('materials')
+         .upload(filePath, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+         
+     if (uploadError) {
+         console.error("Inline image error:", uploadError);
+         return { error: uploadError.message };
+     }
+     
+     const { data: publicUrlData } = supabaseAdmin.storage.from('materials').getPublicUrl(filePath);
+     return { url: publicUrlData.publicUrl };
+  }
+  return { error: 'No file received' };
 }

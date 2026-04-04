@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
-export default function Sidebar() {
+export default function Sidebar({ adminProfile }: { adminProfile?: { full_name?: string, avatar_url?: string } }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -14,6 +14,13 @@ export default function Sidebar() {
     await supabase.auth.signOut();
     router.push('/login');
   };
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'A';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
+  const adminName = adminProfile?.full_name || 'Administrator';
 
   const menu = [
     { name: 'Analytics', path: '/admin', icon: <g><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></g> },
@@ -25,11 +32,18 @@ export default function Sidebar() {
 
   return (
     <aside style={{ width: '280px', borderRight: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(10px)', padding: '2rem 1.5rem' }}>
-       <div style={{ marginBottom: '3rem' }}>
-         <h2 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.1em', background: 'linear-gradient(90deg, #ef4444, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-           COMMAND CENTER
-         </h2>
-         <p style={{ color: '#a1a1aa', fontSize: '0.8rem', marginTop: '0.2rem', textTransform: 'uppercase' }}>Admin Access Only</p>
+       <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+         {adminProfile?.avatar_url ? (
+           <img src={adminProfile.avatar_url} alt="Admin" style={{ width: '48px', height: '48px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)' }} />
+         ) : (
+           <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(45deg, #ef4444, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+             {getInitials(adminName)}
+           </div>
+         )}
+         <div style={{ overflow: 'hidden' }}>
+           <h2 style={{ fontSize: '1rem', fontWeight: 800, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{adminName}</h2>
+           <p style={{ color: '#ef4444', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>COMMAND CENTER</p>
+         </div>
        </div>
 
        <nav style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
