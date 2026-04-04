@@ -1,15 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function proxy(request: NextRequest) {
+export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
-
-  // Skip supabase logic if env vars are missing during development setup
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-     return supabaseResponse;
-  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,17 +31,11 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const protectedRoutes = ['/dashboard', '/admin'];
-  
-  if (request.nextUrl.pathname === '/admin-signup') {
-    return supabaseResponse;
-  }
+  // Guard protected routes and pass the precise deep link as a parameter
+  const authRequiredPaths = ['/dashboard', '/admin'];
+  const isAuthRequired = authRequiredPaths.some(path => request.nextUrl.pathname.startsWith(path));
 
-  const isProtectedRoute = protectedRoutes.some(route => {
-    return request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(`${route}/`);
-  });
-
-  if (isProtectedRoute && !user) {
+  if (!user && isAuthRequired) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('next', request.nextUrl.pathname)
@@ -54,10 +43,4 @@ export async function proxy(request: NextRequest) {
   }
 
   return supabaseResponse
-}
-
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
 }

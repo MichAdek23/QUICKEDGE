@@ -12,6 +12,7 @@ export async function login(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   }
+  const nextTarget = formData.get('next') as string | null;
 
   const { error, data: authData } = await supabase.auth.signInWithPassword(data)
 
@@ -34,12 +35,12 @@ export async function login(formData: FormData) {
 
     if (profile?.role === 'admin') {
       revalidatePath('/admin', 'layout')
-      redirect('/admin')
+      redirect(nextTarget && nextTarget.startsWith('/admin') ? nextTarget : '/admin')
     }
   }
 
   revalidatePath('/dashboard', 'layout')
-  redirect('/dashboard')
+  redirect(nextTarget ? nextTarget : '/dashboard')
 }
 
 export async function signup(formData: FormData) {
@@ -55,6 +56,7 @@ export async function signup(formData: FormData) {
       }
     }
   }
+  const nextTarget = formData.get('next') as string | null;
 
   const { error } = await supabase.auth.signUp(data)
 
@@ -64,7 +66,11 @@ export async function signup(formData: FormData) {
 
   revalidatePath('/dashboard', 'layout')
   // Automatically guide user to OTP view just in case their Supabase requires email confirmations
-  redirect('/otp-verify?email=' + encodeURIComponent(email) + '&message=' + encodeURIComponent('Please check your email for the verification code.'))
+  let otpRedirect = '/otp-verify?email=' + encodeURIComponent(email) + '&message=' + encodeURIComponent('Please check your email for the verification code.')
+  if (nextTarget) {
+     otpRedirect += '&next=' + encodeURIComponent(nextTarget);
+  }
+  redirect(otpRedirect)
 }
 
 export async function logout() {
@@ -105,6 +111,7 @@ export async function verifyOtpAction(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
   const token = formData.get('token') as string
+  const nextTarget = formData.get('next') as string | null
 
   const { error } = await supabase.auth.verifyOtp({
     email,
@@ -113,10 +120,10 @@ export async function verifyOtpAction(formData: FormData) {
   })
 
   if (error) {
-    redirect('/otp-verify?email=' + encodeURIComponent(email) + '&error=' + encodeURIComponent(error.message))
+    redirect('/otp-verify?email=' + encodeURIComponent(email) + '&error=' + encodeURIComponent(error.message) + (nextTarget ? '&next=' + encodeURIComponent(nextTarget) : ''))
   }
 
-  redirect('/dashboard')
+  redirect(nextTarget ? nextTarget : '/dashboard')
 }
 
 export async function signInWithGoogle() {

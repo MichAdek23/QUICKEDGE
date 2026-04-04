@@ -8,6 +8,7 @@ export default async function OtpVerifyPage(props: { searchParams: SearchParams 
   const email = searchParams?.email as string | undefined;
   const error = searchParams?.error as string | undefined;
   const message = searchParams?.message as string | undefined;
+  const nextTarget = searchParams?.next as string | undefined;
 
   if (!email) {
     return (
@@ -33,6 +34,7 @@ export default async function OtpVerifyPage(props: { searchParams: SearchParams 
 
       <form action={verifyOtpAction} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <input type="hidden" name="email" value={email} />
+        {nextTarget && <input type="hidden" name="next" value={nextTarget} />}
         
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>6-Digit Verification Code</label>

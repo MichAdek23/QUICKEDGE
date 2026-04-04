@@ -7,6 +7,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 export default async function SignupPage(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
   const error = searchParams?.error as string | undefined;
+  const nextTarget = searchParams?.next as string | undefined;
 
   return (
     <AuthLayout title="Create Account" subtitle="Join to unlock premium consultancy.">
@@ -17,6 +18,7 @@ export default async function SignupPage(props: { searchParams: SearchParams }) 
       )}
 
       <form action={signup} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {nextTarget && <input type="hidden" name="next" value={nextTarget} />}
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>Full Name</label>
           <input type="text" name="name" placeholder="John Doe" className="input-field" required />

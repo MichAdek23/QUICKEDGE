@@ -8,6 +8,7 @@ export default async function LoginPage(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
   const error = searchParams?.error as string | undefined;
   const message = searchParams?.message as string | undefined;
+  const nextTarget = searchParams?.next as string | undefined;
 
   return (
     <AuthLayout title="Welcome Back" subtitle="Sign in to access your materials.">
@@ -24,6 +25,7 @@ export default async function LoginPage(props: { searchParams: SearchParams }) {
       )}
 
       <form action={login} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {nextTarget && <input type="hidden" name="next" value={nextTarget} />}
         <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>Email</label>
           <input type="email" name="email" placeholder="you@example.com" className="input-field" required />
