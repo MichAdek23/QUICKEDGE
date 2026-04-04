@@ -14,8 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quickedge",
-  description: "Exclusive consultancy and learning materials",
+  title: "Quickedge Platform",
+  description: "Exclusive consultancy, real-time webhooks, and advanced learning materials",
+  applicationName: "Quickedge",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Quickedge",
+  },
+};
+
+export const viewport = {
+  themeColor: "#09090b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

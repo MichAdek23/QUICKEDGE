@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
+import HeroCarousel from '@/components/HeroCarousel';
 
 export default async function BlogIndexPage() {
   const supabase = await createClient();
@@ -12,17 +13,16 @@ export default async function BlogIndexPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <main style={{ minHeight: '100vh', padding: '6rem 2rem', background: '#09090b', color: '#f4f4f5' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <header style={{ textAlign: 'center', marginBottom: '5rem' }}>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #f4f4f5, #a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            The Quickedge Ledger
-          </h1>
-          <p style={{ fontSize: '1.2rem', color: '#a1a1aa', maxWidth: '600px', margin: '0 auto' }}>
-            Latest market insights, trading strategies, and platform updates straight from the originators.
-          </p>
-        </header>
+    <main style={{ minHeight: '100vh', background: '#0a0a0c', color: '#f4f4f5' }}>
+      
+      <HeroCarousel 
+         preTitle="Intel & Analysis"
+         title="The Quickedge"
+         gradientSpan="Ledger."
+         subtitle="Latest market insights, trading strategies, and platform updates straight from the originators."
+      />
 
+      <div style={{ maxWidth: '1200px', margin: '-5rem auto 0 auto', position: 'relative', zIndex: 5, padding: '0 2rem 6rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
           {blogs?.map((post: any) => (
              <Link href={`/blog/${post.slug}`} key={post.id} style={{ textDecoration: 'none' }}>
@@ -56,7 +56,7 @@ export default async function BlogIndexPage() {
              </Link>
           ))}
           {!blogs || blogs.length === 0 && (
-             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '6rem', color: '#a1a1aa', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>
+             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '6rem', color: '#a1a1aa', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px', background: 'rgba(255,255,255,0.02)' }}>
                 No transmission received yet. Check back later.
              </div>
           )}

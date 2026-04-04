@@ -1,25 +1,10 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-
-const images = [
-  '/images/hero-1.png',
-  '/images/hero-2.png',
-  '/images/hero-3.png'
-];
+import HeroCarousel from '@/components/HeroCarousel';
 
 export default function LandingPage() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
   const featureCards = [
     { title: 'Affordable Excellence', desc: 'Top-tier sports consultancy & analytics for just 1500 NGN.', icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
     { title: 'Premium Data Sets', desc: 'Access highly confidential PDF reports and internal breakdown videos.', icon: 'M2 12h4l3-9 5 18 3-9h5' },
@@ -28,51 +13,14 @@ export default function LandingPage() {
 
   return (
     <main style={{ minHeight: '200vh', background: '#0a0a0c' }}>
-      {/* Dynamic 100vh Hero Carousel */}
-      <section style={{ height: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <AnimatePresence>
-          <motion.img 
-            key={index}
-            src={images[index]}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 0.6, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-            style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
-          />
-        </AnimatePresence>
-
-        {/* Hero Content Overlay */}
-        <div style={{ position: 'absolute', zIndex: 1, textAlign: 'center', padding: '0 2rem' }}>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div style={{ display: 'inline-block', padding: '0.4rem 1.2rem', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', border: '1px solid rgba(255,255,255,0.1)', color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1.5rem', backdropFilter: 'blur(10px)' }}>
-               Next-Generation Performance
-            </div>
-            <h1 style={{ fontSize: '5rem', fontWeight: 900, lineHeight: 1.1, color: '#ffffff', letterSpacing: '-0.03em', marginBottom: '1.5rem', textShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-               Master Your Craft.<br />
-               <span style={{ backgroundImage: 'linear-gradient(to right, #f43f5e, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Dominate The Field.</span>
-            </h1>
-            <p style={{ fontSize: '1.2rem', color: '#e4e4e7', maxWidth: '600px', margin: '0 auto 3rem auto', lineHeight: 1.6, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-               Join an elite consultancy tier. Unlock highly aggressive algorithmic metrics, tailored regimens, and insider datasets.
-            </p>
-            <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-               <Link href="/login" className="btn-primary" style={{ padding: '1rem 2.5rem', fontSize: '1rem', background: '#e11d48' }}>
-                  Deploy Now
-               </Link>
-               <a href="#features" className="btn-secondary" style={{ padding: '1rem 2.5rem', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
-                  View Intel
-               </a>
-            </div>
-          </motion.div>
-        </div>
-        
-        {/* Gradient Fade to Black base */}
-        <div style={{ position: 'absolute', bottom: 0, width: '100%', height: '30vh', background: 'linear-gradient(to top, #0a0a0c, transparent)', zIndex: 1 }}></div>
-      </section>
+      <HeroCarousel 
+         preTitle="Next-Generation Performance"
+         title="Master Your Craft."
+         gradientSpan="Dominate The Field."
+         subtitle="Join an elite consultancy tier. Unlock highly aggressive algorithmic metrics, tailored regimens, and insider datasets."
+         primaryBtn={{ label: 'Deploy Now', href: '/login' }}
+         secondaryBtn={{ label: 'View Intel', href: '#features' }}
+      />
 
       {/* Features Grid that animates repeatedly */}
       <section id="features" style={{ padding: '8rem 2rem', maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
