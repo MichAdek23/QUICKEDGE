@@ -6,7 +6,7 @@ export default async function BlogIndexPage() {
   const supabase = await createClient();
   
   // Fetch published blogs unconditionally for public indexing
-  const { data: blogs } = await supabase
+  const { data: blogs, error } = await supabase
     .from('blog_posts')
     .select('*, profiles(full_name, avatar_url)')
     .eq('published', true)

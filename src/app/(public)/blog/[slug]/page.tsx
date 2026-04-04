@@ -4,10 +4,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './blog.css'; 
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: { slug: string } | Promise<{ slug: string }> }) {
   const supabase = await createClient();
   
-  const { data: routeParams } = await Promise.resolve({ data: params });
+  const routeParams = await Promise.resolve(params);
 
   const { data: post, error } = await supabase
     .from('blog_posts')
@@ -19,7 +19,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     notFound();
   }
 
-  const defaultHero = 'linear-gradient(135deg, #18181b, #000000)';
+  const defaultHero = 'url(/images/hero-1.png) center/cover no-repeat';
 
   return (
     <main style={{ minHeight: '100vh', background: '#09090b', color: '#f4f4f5' }}>
@@ -40,7 +40,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
          {/* Content Wrapper */}
          <div style={{ maxWidth: '800px', width: '100%', padding: '0 2rem 4rem', position: 'relative', zIndex: 2 }}>
            <a href="/blog" style={{ color: '#a1a1aa', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', marginBottom: '2rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <g><path d="M19 12H5M12 19l-7-7 7-7" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></g>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                 <g><path d="M19 12H5M12 19l-7-7 7-7" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></g>
+              </svg>
               Return to Catalog
            </a>
            
