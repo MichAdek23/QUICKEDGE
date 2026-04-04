@@ -60,11 +60,26 @@ export default async function MaterialDetailsPage(props: { params: Promise<{ id:
        </div>
 
        {isSubscribed && material.url ? (
-         <div className="glass-panel" style={{ overflow: 'hidden', padding: 0, border: '1px solid rgba(255,255,255,0.1)', background: 'black' }}>
+         <div className="glass-panel" style={{ overflow: 'hidden', padding: 0, border: '1px solid rgba(255,255,255,0.1)', background: 'black', borderRadius: '16px' }}>
             {material.type === 'video' ? (
-              <video src={material.url} controls style={{ width: '100%', maxHeight: '600px', display: 'block' }} />
+              <video src={material.url} controls controlsList="nodownload" preload="metadata" style={{ width: '100%', maxHeight: '600px', display: 'block', backgroundColor: 'black' }} />
             ) : material.type === 'image' ? (
-              <img src={material.url} alt={material.title} style={{ width: '100%', maxHeight: '800px', objectFit: 'contain', display: 'block' }} />
+              <img src={material.url} alt={material.title} style={{ width: '100%', maxHeight: '800px', objectFit: 'contain', display: 'block', backgroundColor: '#0f0f11' }} />
+            ) : material.type === 'pdf' ? (
+              /* State of the art cross-browser PDF rendering: 
+                 1. Native <object> executes seamlessly on Desktop.
+                 2. If mobile OS rejects native object binding, it cascades into the iframe.
+                 3. The iframe utilizes Google Docs Viewer to force an HTML5 canvas render of the PDF natively! */
+              <object data={`${material.url}#view=FitH`} type="application/pdf" width="100%" height="800px" style={{ display: 'block' }}>
+                 <iframe 
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(material.url)}&embedded=true`} 
+                    width="100%" 
+                    height="800px" 
+                    style={{ border: 'none', display: 'block', backgroundColor: '#fff' }} 
+                 >
+                    <p style={{ color: 'white', padding: '2rem' }}>Your browser does not support inline PDFs. <a href={material.url} style={{ color: '#8b5cf6' }}>Download the PDF</a>.</p>
+                 </iframe>
+              </object>
             ) : (
               <iframe src={material.url} style={{ width: '100%', height: '800px', border: 'none', backgroundColor: '#fff', display: 'block' }} />
             )}

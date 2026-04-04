@@ -30,7 +30,9 @@ export default function UserRow({ user }: { user: any }) {
             </div>
             <div>
               <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{user.full_name || 'Anonymous User'}</div>
-              <div style={{ fontSize: '0.8rem', color: '#a1a1aa', fontFamily: 'monospace' }}>...{user.id.substring(user.id.length - 8)}</div>
+              <div style={{ fontSize: '0.8rem', color: '#a1a1aa', fontFamily: 'monospace' }}>
+                {user.mat_number ? `MAT: ${user.mat_number}` : `...${user.id.substring(user.id.length - 8)}`}
+              </div>
             </div>
           </div>
         </td>

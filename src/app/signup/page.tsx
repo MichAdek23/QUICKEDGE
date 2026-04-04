@@ -24,6 +24,10 @@ export default async function SignupPage(props: { searchParams: SearchParams }) 
           <input type="text" name="name" placeholder="John Doe" className="input-field" required />
         </div>
         <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>Matriculation / ID Number</label>
+          <input type="text" name="mat_number" placeholder="MAT-2026-X89" className="input-field" required />
+        </div>
+        <div>
           <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>Email</label>
           <input type="email" name="email" placeholder="you@example.com" className="input-field" required />
         </div>

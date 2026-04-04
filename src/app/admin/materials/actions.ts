@@ -23,12 +23,21 @@ export async function createMaterial(formData: FormData) {
     // Check if it's genuinely a file object and has bytes
     if (rawFile && typeof rawFile === 'object' && 'size' in rawFile && (rawFile as File).size > 0) {
       const file = rawFile as File;
-      const fileExt = file.name?.split('.').pop() || 'media';
+      let fileExt = file.name?.split('.').pop()?.toLowerCase() || 'media';
       const filePath = `deployments/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       
+      // Defensively extrapolate accurate MIME types explicitly to prevent Native browser download execution bugs.
+      let finalContentType = file.type;
+      if (!finalContentType || finalContentType === 'application/octet-stream') {
+         if (fileExt === 'pdf') finalContentType = 'application/pdf';
+         else if (['mp4', 'webm', 'mov'].includes(fileExt)) finalContentType = 'video/' + fileExt;
+         else if (['png', 'jpg', 'jpeg', 'svg', 'gif', 'webp'].includes(fileExt)) finalContentType = 'image/' + fileExt;
+         else finalContentType = 'application/octet-stream';
+      }
+
       const { error: uploadError } = await supabaseAdmin.storage
          .from('materials')
-         .upload(filePath, file, { upsert: true, contentType: file.type || 'application/octet-stream' });
+         .upload(filePath, file, { upsert: true, contentType: finalContentType });
          
       if (uploadError) {
           console.error("CRITICAL STORAGE FAULT:", uploadError);

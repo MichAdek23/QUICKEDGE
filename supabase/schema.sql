@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT,
   role TEXT DEFAULT 'student' CHECK (role IN ('admin', 'student')),
+  mat_number TEXT,
   is_subscribed BOOLEAN DEFAULT false,
   avatar_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -90,12 +91,13 @@ DROP FUNCTION IF EXISTS public.handle_new_user();
 CREATE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, role, avatar_url)
+  INSERT INTO public.profiles (id, full_name, role, avatar_url, mat_number)
   VALUES (
     new.id, 
     new.raw_user_meta_data->>'full_name', 
     'student',
-    new.raw_user_meta_data->>'avatar_url'
+    new.raw_user_meta_data->>'avatar_url',
+    new.raw_user_meta_data->>'mat_number'
   );
   RETURN new;
 EXCEPTION WHEN OTHERS THEN
@@ -223,7 +225,20 @@ CREATE POLICY "Public can view settings" ON public.app_settings FOR SELECT USING
 
 INSERT INTO public.app_settings (key, value) VALUES ('admin_signup_enabled', 'true') ON CONFLICT DO NOTHING;
 
--- 13. GLOBAL REALTIME MATRIX
+-- 13. CONTACT MESSAGES TABLE
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+-- No public policies needed since Next.js Server Actions use Admin Role to bypass RLS and interact safely.
+
+-- 14. GLOBAL REALTIME MATRIX
 -- Safely injects every newly generated table into the Supabase realtime pipeline
 DO $$ 
 DECLARE

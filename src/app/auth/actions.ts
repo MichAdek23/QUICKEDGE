@@ -53,6 +53,7 @@ export async function signup(formData: FormData) {
     options: {
       data: {
         full_name: formData.get('name') as string,
+        mat_number: formData.get('mat_number') as string,
       }
     }
   }
