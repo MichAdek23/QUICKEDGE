@@ -1,15 +1,34 @@
 'use client';
 
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 export default function FloatingNavbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsSignedIn(!!user);
+      } catch (error) {
+        setIsSignedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() || 0;
@@ -25,6 +44,7 @@ export default function FloatingNavbar() {
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Contact', path: '/contact' },
   ];
 
   return (
@@ -96,9 +116,17 @@ export default function FloatingNavbar() {
 
         {/* Desktop Button */}
         <div className="nav-desktop-btn">
-          <Link href="/contact" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem' }}>
-             Get in Touch
-          </Link>
+          {!isLoading && (
+            isSignedIn ? (
+              <Link href="/dashboard" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem' }}>
+                Dashboard
+              </Link>
+            ) : (
+              <Link href="/signup" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem' }}>
+                Get Started
+              </Link>
+            )
+          )}
         </div>
 
         {/* Mobile Hamburger Toggle */}
@@ -167,14 +195,27 @@ export default function FloatingNavbar() {
               );
             })}
             
-            <Link 
-              href="/contact" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="btn-primary" 
-              style={{ padding: '0.8rem', fontSize: '1rem', textAlign: 'center', marginTop: '0.5rem' }}
-            >
-               Get in Touch
-            </Link>
+            {!isLoading && (
+              isSignedIn ? (
+                <Link 
+                  href="/dashboard" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="btn-primary" 
+                  style={{ padding: '0.8rem', fontSize: '1rem', textAlign: 'center', marginTop: '0.5rem' }}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link 
+                  href="/signup" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="btn-primary" 
+                  style={{ padding: '0.8rem', fontSize: '1rem', textAlign: 'center', marginTop: '0.5rem' }}
+                >
+                  Get Started
+                </Link>
+              )
+            )}
           </motion.div>
         )}
       </AnimatePresence>
