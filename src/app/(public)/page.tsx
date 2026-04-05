@@ -17,10 +17,27 @@ export default function LandingPage() {
   return (
     <main style={{ minHeight: '300vh', background: '#0a0a0c' }}>
       <style>{`
+        /* Desktop Styles (Default - matches inline styles) */
+        .section-padding { padding: 8rem 2rem; }
+        .section-title { font-size: 3rem; }
+        .section-subtitle { font-size: 1.1rem; }
+        .feature-card { padding: 2.5rem; }
+        .feature-title { font-size: 1.3rem; }
+        .feature-desc { font-size: 1rem; }
+        .ceo-section { grid-template-columns: 1fr 1fr; gap: 4rem; }
+        .ceo-image { font-size: 4rem; }
+        .ceo-title { font-size: 2.5rem; }
+        .ceo-text { font-size: 1.1rem; }
+        .stats-section { padding: 8rem 2rem; }
+        .stats-number { font-size: 3rem; }
+        .how-it-works { padding: 8rem 2rem; }
+        .step-number { font-size: 3rem; }
+        .step-title { font-size: 1.2rem; }
+        .cta-section { padding: 8rem 2rem; }
+        .cta-title { font-size: 3rem; }
+        .cta-subtitle { font-size: 1.1rem; }
+        
         /* Mobile Responsive Styles */
-        @media (min-width: 769px) {
-          .ceo-section { grid-template-columns: 1fr 1fr !important; }
-        }
         @media (max-width: 768px) {
           .hero-title { font-size: 3rem !important; }
           .hero-subtitle { font-size: 1rem !important; }

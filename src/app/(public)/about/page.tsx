@@ -16,6 +16,38 @@ export default function AboutPage() {
   return (
     <main style={{ minHeight: '100vh', background: '#0a0a0c', color: '#f4f4f5' }}>
       <style>{`
+        /* Desktop Styles (Default - matches inline styles) */
+        .about-hero-title { font-size: 4rem; }
+        .about-hero-subtitle { font-size: 1.2rem; }
+        .mission-section { padding: 8rem 2rem; }
+        .mission-title { font-size: 3rem; }
+        .mission-text { font-size: 1.1rem; }
+        .values-section { padding: 8rem 2rem; }
+        .values-title { font-size: 3rem; }
+        .values-subtitle { font-size: 1.1rem; }
+        .value-card { padding: 2.5rem; }
+        .value-icon { font-size: 3rem; }
+        .value-title { font-size: 1.3rem; }
+        .value-desc { font-size: 1rem; }
+        .team-section { padding: 8rem 2rem; }
+        .team-title { font-size: 3rem; }
+        .team-subtitle { font-size: 1.1rem; }
+        .team-member { padding: 2.5rem; }
+        .member-avatar { width: 100px; height: 100px; font-size: 2.5rem; }
+        .member-name { font-size: 1.2rem; }
+        .member-role { font-size: 1rem; }
+        .member-bio { font-size: 1rem; }
+        .timeline-section { padding: 8rem 2rem; }
+        .timeline-title { font-size: 3rem; }
+        .timeline-subtitle { font-size: 1.1rem; }
+        .timeline-item { padding-left: 2rem; }
+        .timeline-year { font-size: 1.3rem; }
+        .timeline-event { font-size: 1.2rem; }
+        .timeline-desc { font-size: 1rem; }
+        .cta-section-about { padding: 6rem 2rem; }
+        .cta-title-about { font-size: 2.5rem; }
+        .cta-subtitle-about { font-size: 1.1rem; }
+        
         /* Mobile Responsive Styles for About Page */
         @media (max-width: 768px) {
           .about-hero-title { font-size: 3rem !important; }
