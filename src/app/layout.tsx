@@ -15,13 +15,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quickedge Platform",
+  title: "Quick-Hedge Platform",
   description: "Exclusive consultancy, real-time webhooks, and advanced learning materials",
-  applicationName: "Quickedge",
+  applicationName: "Quick-Hedge",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Quickedge",
+    title: "Quick-Hedge",
   },
 };
 

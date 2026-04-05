@@ -25,7 +25,7 @@ export default function Sidebar({ profileRole, profileName, avatarUrl, logoutFor
 
       <aside className={`sidebar-wrapper ${isOpen ? 'open' : ''}`}>
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', marginBottom: '2rem', letterSpacing: '0.05em' }}>QUICKEDGE</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', marginBottom: '2rem', letterSpacing: '0.05em' }}>QUICK-HEDGE</h2>
 
           {avatarUrl ? (
              <img src={avatarUrl} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.1)', flexShrink: 0, marginBottom: '1rem' }} />

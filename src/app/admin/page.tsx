@@ -20,7 +20,7 @@ export default async function AdminDashboardOverview() {
   return (
     <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>Global Analytics</h1>
-      <p style={{ color: '#a1a1aa', fontSize: '1.1rem', marginBottom: '3rem' }}>Real-time telemetry for the Quickedge ecosystem.</p>
+      <p style={{ color: '#a1a1aa', fontSize: '1.1rem', marginBottom: '3rem' }}>Real-time telemetry for the Quick-Hedge ecosystem.</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
         

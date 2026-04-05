@@ -14,7 +14,7 @@ export default function AuthLayout({ children, title, subtitle }: { children: Re
           priority 
         />
         <div style={{ position: 'absolute', bottom: '10%', left: '10%', zIndex: 2, padding: '2rem', backdropFilter: 'blur(10px)', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', maxWidth: '400px' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'white' }}>Quickedge Consultancy</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'white' }}>Quick-Hedge Consultancy</h2>
           <p style={{ color: '#e4e4e7', fontSize: '0.9rem' }}>Elevate your skills and career with premium, curated resources and expert guidance.</p>
         </div>
       </div>

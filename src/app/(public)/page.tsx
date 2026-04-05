@@ -65,7 +65,7 @@ export default function LandingPage() {
            transition={{ duration: 0.6, type: 'spring' }}
          >
            <h2 style={{ fontSize: '4rem', fontWeight: 900, color: '#ffffff', marginBottom: '1.5rem' }}>Elevate Immediately.</h2>
-           <p style={{ color: '#a1a1aa', fontSize: '1.2rem', marginBottom: '3rem', maxWidth: '500px', margin: '0 auto 3rem auto' }}>Stop guessing. Start measuring. Enter the QUICKEDGE portal today.</p>
+           <p style={{ color: '#a1a1aa', fontSize: '1.2rem', marginBottom: '3rem', maxWidth: '500px', margin: '0 auto 3rem auto' }}>Stop guessing. Start measuring. Enter the QUICK-HEDGE portal today.</p>
            <Link href="/signup" className="btn-primary" style={{ padding: '1.2rem 3rem', fontSize: '1.1rem', background: '#e11d48', borderRadius: '999px', boxShadow: '0 0 40px rgba(225, 29, 72, 0.4)' }}>Initiate Access Sequence</Link>
          </motion.div>
       </section>

@@ -18,7 +18,7 @@ export default async function BlogIndexPage() {
       
       <HeroCarousel 
          preTitle="Intel & Analysis"
-         title="The Quickedge"
+         title="The Quick-Hedge"
          gradientSpan="Ledger."
          subtitle="Latest market insights, trading strategies, and platform updates straight from the originators."
       />
@@ -32,7 +32,7 @@ export default async function BlogIndexPage() {
                       <div style={{ width: '100%', height: '220px', background: `url(${post.thumbnail_url}) center/cover no-repeat` }} />
                    ) : (
                       <div style={{ width: '100%', height: '220px', background: 'linear-gradient(135deg, #18181b, #27272a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                         <span style={{ color: '#a1a1aa', fontWeight: 600 }}>QUICKEDGE</span>
+                         <span style={{ color: '#a1a1aa', fontWeight: 600 }}>QUICK-HEDGE</span>
                       </div>
                    )}
                    <div style={{ padding: '2rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>

@@ -29,7 +29,7 @@ export default function ContactPage() {
                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                     </div>
                     <div>
-                       <p style={{ margin: 0, fontWeight: 600, color: '#f4f4f5', fontSize: '1.1rem' }}>Quickedge Base</p>
+                       <p style={{ margin: 0, fontWeight: 600, color: '#f4f4f5', fontSize: '1.1rem' }}>Quick-Hedge Base</p>
                        <p style={{ margin: '0.2rem 0 0 0', color: '#a1a1aa', lineHeight: 1.5 }}>
                           123 Education Boulevard,<br />
                           Tech District, Silicon Valley,<br />
@@ -56,7 +56,7 @@ export default function ContactPage() {
                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     </div>
                     <div>
-                       <p style={{ margin: 0, fontWeight: 600, color: '#f4f4f5', fontSize: '1.1rem' }}>hello@quickedge.com</p>
+                       <p style={{ margin: 0, fontWeight: 600, color: '#f4f4f5', fontSize: '1.1rem' }}>hello@quick-hedge.com</p>
                        <p style={{ margin: '0.2rem 0 0 0', color: '#a1a1aa' }}>Online Support available 24/7</p>
                     </div>
                  </div>

@@ -13,7 +13,7 @@ export default function AboutPage() {
          <div className="glass-panel" style={{ padding: '4rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem', color: '#ffffff' }}>Our Mission</h2>
             <p style={{ fontSize: '1.2rem', color: '#a1a1aa', lineHeight: 1.8, marginBottom: '2rem' }}>
-               Quickedge was forged for one reason: bridging the gap between average performance and elite market execution. Through aggressive tracking, premium analytics, and tailored frameworks, we tear down traditional barriers.
+               Quick-Hedge was forged for one reason: bridging the gap between average performance and elite market execution. Through aggressive tracking, premium analytics, and tailored frameworks, we tear down traditional barriers.
             </p>
          </div>
       </div>

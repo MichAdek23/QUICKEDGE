@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Quickedge',
-    short_name: 'Quickedge',
+    name: 'Quick-Hedge',
+    short_name: 'Quick-Hedge',
     description: 'Expert consultancy and educational materials platform',
     start_url: '/',
     display: 'standalone',

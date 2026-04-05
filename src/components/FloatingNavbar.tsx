@@ -79,7 +79,7 @@ export default function FloatingNavbar() {
       >
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
           <div style={{ width: '28px', height: '28px', background: 'linear-gradient(45deg, #ef4444, #8b5cf6)', borderRadius: '50%' }}></div>
-          <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em' }}>QUICKEDGE</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em' }}>QUICK-HEDGE</span>
         </Link>
 
         {/* Desktop Links */}
