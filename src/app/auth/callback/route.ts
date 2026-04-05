@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -17,10 +18,10 @@ export async function GET(request: Request) {
         cookies: {
           getAll() { return cookieStore.getAll() },
           setAll(cookiesToSet) {
-            try { 
-              cookiesToSet.forEach(({ name, value, options }) => 
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
                 cookieStore.set(name, value, options)
-              ) 
+              )
             } catch {
               // The `setAll` method was called from a Server Component.
               // This can be ignored if you have middleware refreshing user sessions.
@@ -29,9 +30,22 @@ export async function GET(request: Request) {
         },
       }
     )
-    
+
     // Exchanges auth code for the secure session cookie
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (data.user && !data.user.email_confirmed_at) {
+      // User signed up via OAuth but email confirmation is still required
+      // Use admin client to confirm the email automatically for OAuth users
+      const supabaseAdmin = createSupabaseAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
+        email_confirm: true
+      });
+    }
   }
 
   // URL to redirect to after sign in process completes
