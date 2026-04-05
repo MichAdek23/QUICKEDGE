@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { createBlogPost, uploadInlineImage } from './actions';
+import { upsertBlogPost, uploadInlineImage } from './actions';
 
 export default function BlogEditor() {
   const [content, setContent] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInlineImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,16 +46,45 @@ export default function BlogEditor() {
     e.target.value = ''; // Reset input
   };
 
+  async function handleSubmit(formData: FormData) {
+    setLoading(true);
+    setStatus(null);
+    
+    const result = await upsertBlogPost(formData);
+    
+    if (result.error) {
+      setStatus({ type: 'error', message: result.error });
+    } else {
+      setStatus({ type: 'success', message: 'Blog post published successfully!' });
+      // Optionally clear form
+    }
+    
+    setLoading(false);
+  }
+
   return (
-    <form action={createBlogPost} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <>
+      {status && (
+        <div style={{
+          padding: '1rem',
+          borderRadius: '8px',
+          background: status.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          color: status.type === 'success' ? '#10b981' : '#ef4444',
+          border: `1px solid ${status.type === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+          fontSize: '0.9rem'
+        }}>
+          {status.message}
+        </div>
+      )}
+      <form action={handleSubmit} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
        <div>
          <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Catchy Title SEO</label>
-         <input type="text" name="title" required className="input-field" placeholder="E.g. Top 5 Forex Strategies..." />
+         <input type="text" name="title" required className="input-field" placeholder="E.g. Top 5 Forex Strategies..." disabled={loading} />
        </div>
        
        <div>
          <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Thumbnail Cover (Optional)</label>
-         <input type="file" name="thumbnail" accept="image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} />
+         <input type="file" name="thumbnail" accept="image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} disabled={loading} />
        </div>
 
        <div>
@@ -75,10 +106,14 @@ export default function BlogEditor() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             style={{ fontFamily: 'monospace' }}
+            disabled={loading}
          ></textarea>
        </div>
        
-       <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem', background: 'linear-gradient(45deg, #10b981, #059669)' }}>Publish to World</button>
+       <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem', background: 'linear-gradient(45deg, #10b981, #059669)' }} disabled={loading}>
+         {loading ? 'Publishing...' : 'Publish to World'}
+       </button>
     </form>
+    </>
   );
 }

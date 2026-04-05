@@ -148,6 +148,8 @@ CREATE TABLE IF NOT EXISTS public.quizzes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   material_id UUID REFERENCES public.materials(id) ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
+  published BOOLEAN DEFAULT true NOT NULL,
+  is_archived BOOLEAN DEFAULT false NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
