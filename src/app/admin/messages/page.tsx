@@ -34,7 +34,7 @@ export default async function AdminMessagesPage() {
   }
 
   return (
-    <div>
+    <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>
        <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, margin: 0, color: 'white' }}>Inbox / Comms</h1>
@@ -133,6 +133,6 @@ export default async function AdminMessagesPage() {
              ))}
           </div>
        )}
-    </div>
+    </main>
   );
 }
