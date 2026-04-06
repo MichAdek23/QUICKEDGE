@@ -21,14 +21,18 @@ function normalizeProfilePayload(user: User, profileData: { full_name?: string; 
 
   const defaultFullName = profileData.full_name || String(rawMeta.full_name ?? rawMeta.name ?? user.email?.split('@')[0] ?? 'Student')
   const avatarUrl = profileData.avatar_url || String(rawMeta.avatar_url ?? rawMeta.picture ?? rawProfile?.picture ?? '') || null
-  const matNumber = profileData.mat_number || String(rawMeta.mat_number ?? '') || null
 
-  return {
+  const payload: Record<string, unknown> = {
     full_name: defaultFullName,
     avatar_url: avatarUrl,
-    mat_number: matNumber,
     role: profileData.role ?? 'student',
   }
+
+  if (profileData.mat_number) {
+    payload.mat_number = profileData.mat_number
+  }
+
+  return payload
 }
 
 export async function ensureProfileExistsForAuthUser(
