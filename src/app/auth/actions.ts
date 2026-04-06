@@ -157,10 +157,16 @@ export async function updateProfile(formData: FormData) {
   if (!user) return
 
   const fullName = formData.get('full_name') as string
+  const matNumber = formData.get('mat_number') as string | null
+
+  const updates: Record<string, unknown> = { full_name: fullName }
+  if (matNumber) {
+    updates.mat_number = matNumber
+  }
 
   const { error } = await supabase
     .from('profiles')
-    .update({ full_name: fullName })
+    .update(updates)
     .eq('id', user.id)
 
   if (error) {

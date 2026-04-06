@@ -18,6 +18,7 @@ export default async function ProfilePage(props: { searchParams: SearchParams })
     .eq('id', user.id)
     .single();
 
+  const isSocialUser = !!user.identities?.some((identity: any) => identity.provider !== 'email');
   const searchParams = await props.searchParams;
   const message = searchParams?.message as string | undefined;
   const error = searchParams?.error as string | undefined;
@@ -42,7 +43,7 @@ export default async function ProfilePage(props: { searchParams: SearchParams })
       )}
 
       <div className="glass-panel" style={{ padding: '2rem' }}>
-        <ProfileClient userId={user.id} currentAvatarUrl={profile?.avatar_url} />
+        <ProfileClient userId={user.id} currentAvatarUrl={profile?.avatar_url} isSocialUser={isSocialUser} />
 
         <form action={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingTop: '2.5rem', marginTop: '2.5rem', borderTop: '1px solid var(--card-border)' }}>
           <div>
@@ -53,6 +54,15 @@ export default async function ProfilePage(props: { searchParams: SearchParams })
           <div>
             <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>Full Name</label>
             <input type="text" name="full_name" defaultValue={profile?.full_name || ''} className="input-field" placeholder="John Doe" required />
+          </div>
+
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', marginBottom: '0.5rem', color: '#e4e4e7' }}>
+              <span>Matriculation / ID Number</span>
+              <span style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: 700 }}>Important</span>
+            </label>
+            <input type="text" name="mat_number" defaultValue={profile?.mat_number || ''} className="input-field" placeholder="Enter your matriculation number" />
+            <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: '#a1a1aa' }}>Add your matriculation number here — this field is only set from your profile page.</p>
           </div>
           
           <div>
