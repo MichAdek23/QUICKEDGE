@@ -65,7 +65,9 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
           quiz_id: quiz.id,
           user_id: userId,
           score: calculatedScore,
-          total: questions.length
+          total: questions.length,
+          passed: calculatedScore / questions.length >= 0.7,
+          answers: selectedAnswers,
        });
     } catch (e) {
        console.error("Failed to log score", e);

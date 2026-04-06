@@ -3,7 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-export async function deployQuizAttempt(quizId: string, score: number, total: number) {
+export async function deployQuizAttempt(quizId: string, score: number, total: number, answers: Record<string, number> = {}) {
   const supabase = await createClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   
@@ -22,12 +22,16 @@ export async function deployQuizAttempt(quizId: string, score: number, total: nu
      return { error: 'FATAL: You have already completed this assessment. Re-attempts are blocked at the database level.' };
   }
 
+  const passed = total > 0 ? score / total >= 0.7 : false;
+
   // 2. Commit payload
   const { error } = await supabase.from('quiz_attempts').insert({
     quiz_id: quizId,
     user_id: authData.user.id,
     score,
-    total
+    total,
+    passed,
+    answers,
   });
 
   if (error) {

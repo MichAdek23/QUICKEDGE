@@ -51,7 +51,7 @@ export default function StrictQuizRunner({ quiz }: { quiz: any }) {
   const forceAutoSubmit = async (reason: string) => {
     setIsSubmitting(true);
     const score = calculateScore(selectedRef.current);
-    const res = await deployQuizAttempt(quiz.id, score, questions.length);
+    const res = await deployQuizAttempt(quiz.id, score, questions.length, selectedRef.current);
     if (res.error) setFatalError(res.error);
     
     setFinalScore(score);
@@ -62,7 +62,7 @@ export default function StrictQuizRunner({ quiz }: { quiz: any }) {
   const submitQuiz = async () => {
     setIsSubmitting(true);
     const score = calculateScore(selectedAnswers);
-    const res = await deployQuizAttempt(quiz.id, score, questions.length);
+    const res = await deployQuizAttempt(quiz.id, score, questions.length, selectedAnswers);
     if (res.error) {
        setFatalError(res.error);
     } else {

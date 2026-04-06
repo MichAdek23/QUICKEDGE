@@ -156,7 +156,7 @@ export default function LandingPage() {
             >
               <h2 className="ceo-title" style={{ fontWeight: 800, color: '#f4f4f5', marginBottom: '1.5rem' }}>A Word From Our Founder</h2>
               <p className="ceo-text" style={{ color: '#a1a1aa', lineHeight: 1.8, marginBottom: '2rem' }}>
-                "Quick-Hedge was born from a simple observation: the gap between average practitioners and elite performers isn't talent—it's data. We've spent years building technology that captures every nuance of performance, translating complexity into clarity. Today, we're democratizing access to the insights that previously only the top 1% could afford. Our mission is simple: equip you with the metrics that matter, the mentorship that shapes winners, and the confidence to dominate your field."
+                "Quick Hedge was born from a simple observation: the gap between average practitioners and elite performers is not talent, it is data. We have spent years building technology that captures every nuance of performance, translating complexity into clarity. Today, we are democratizing access to the insights that previously only the top 1% could afford. Our mission is simple: equip you with the metrics that matter, the mentorship that shapes winners, and the confidence to dominate your field."
               </p>
               <p style={{ fontSize: '1rem', color: '#71717a', fontWeight: 600 }}>— Founder & CEO, Quick-Hedge</p>
               <div style={{ marginTop: '2rem' }}>
@@ -178,7 +178,7 @@ export default function LandingPage() {
            style={{ textAlign: 'center', marginBottom: '4rem' }}
          >
            <h2 className="section-title" style={{ fontWeight: 800, color: '#f4f4f5', marginBottom: '1rem' }}>Proven Results</h2>
-           <p className="section-subtitle" style={{ color: '#a1a1aa' }}>Join thousands of athletes and traders who've elevated their performance</p>
+           <p className="section-subtitle" style={{ color: '#a1a1aa' }}>Join thousands of athletes and traders who have elevated their performance</p>
          </motion.div>
 
          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', textAlign: 'center' }}>

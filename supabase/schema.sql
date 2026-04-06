@@ -180,6 +180,8 @@ CREATE TABLE IF NOT EXISTS public.quiz_attempts (
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   score INTEGER NOT NULL,
   total INTEGER NOT NULL,
+  passed BOOLEAN DEFAULT false NOT NULL,
+  answers JSONB DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
