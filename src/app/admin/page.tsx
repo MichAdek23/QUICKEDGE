@@ -19,10 +19,39 @@ export default async function AdminDashboardOverview() {
 
   return (
     <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>
+      <style>{`
+        .admin-analytics-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+          margin-bottom: 4rem;
+        }
+
+        @media (max-width: 1023px) {
+          .admin-analytics-cards {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            gap: 1rem;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .admin-analytics-cards::-webkit-scrollbar {
+            display: none;
+          }
+          .admin-analytics-cards > .glass-panel {
+            flex: 0 0 auto;
+            min-width: 280px;
+            scroll-snap-align: start;
+          }
+        }
+      `}</style>
       <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>Global Analytics</h1>
       <p style={{ color: '#a1a1aa', fontSize: '1.1rem', marginBottom: '3rem' }}>Real-time telemetry for the Quick-Hedge ecosystem.</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
+      <div className="admin-analytics-cards">
         
         <div className="glass-panel" style={{ padding: '2rem', borderTop: '4px solid #ef4444' }}>
           <h3 style={{ color: '#a1a1aa', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Gross Revenue</h3>
