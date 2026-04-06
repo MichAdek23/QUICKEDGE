@@ -4,6 +4,14 @@ import ReplyForm from './ReplyForm';
 
 export const dynamic = 'force-dynamic';
 
+interface MessageReply {
+  id: string;
+  reply_text: string;
+  reply_from: 'user' | 'admin';
+  sent_via_email: boolean;
+  created_at: string;
+}
+
 export default async function AdminMessagesPage() {
   const supabaseAdmin = createSupabaseAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,7 +82,7 @@ export default async function AdminMessagesPage() {
                           <h4 style={{ color: '#a1a1aa', fontSize: '0.85rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             Conversation ({msg.replies.length} {msg.replies.length === 1 ? 'reply' : 'replies'})
                           </h4>
-                          {msg.replies.map((reply) => (
+                          {msg.replies.map((reply: MessageReply) => (
                             <div key={reply.id} style={{ 
                               background: reply.reply_from === 'admin' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                               padding: '1rem', 
