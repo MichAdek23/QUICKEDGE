@@ -26,7 +26,7 @@ RESEND_API_KEY=your_resend_api_key_here
 ```
 
 ### 3. Domain Configuration
-- By default, emails are sent from `noreply@quickedge.com`
+- By default, emails are sent from `noreply@quick-hedgeconsulting.com`
 - You'll need to verify your domain in Resend to send emails
 - For development, you can use Resend's test domain
 
