@@ -34,7 +34,11 @@ export default function Sidebar({ adminProfile }: { adminProfile?: { full_name?:
   ];
 
   return (
-    <aside style={{ width: '280px', borderRight: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(10px)', padding: '2rem 1.5rem' }}>
+    <>
+    <aside style={{ width: '280px', borderRight: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(10px)', padding: '2rem 1.5rem', overflowY: 'auto', overflowX: 'hidden' }}>
+       <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+         <img src="/logo12.png" alt="QuickEdge" style={{ width: '100px', height: '40px' }} />
+         </div>
        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
          {adminProfile?.avatar_url ? (
            <img src={adminProfile.avatar_url} alt="Admin" style={{ width: '48px', height: '48px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.1)' }} />
@@ -72,5 +76,16 @@ export default function Sidebar({ adminProfile }: { adminProfile?: { full_name?:
          </button>
        </div>
     </aside>
+    <style>{`
+      aside::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+      }
+      aside {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+    `}</style>
+    </>
   );
 }

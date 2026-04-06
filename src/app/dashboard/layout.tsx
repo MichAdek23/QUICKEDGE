@@ -49,11 +49,41 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="dashboard-layout">
+      <style>{`
+        .dashboard-layout main::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        .dashboard-layout main::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .dashboard-layout main::-webkit-scrollbar-thumb {
+          background: transparent;
+        }
+        .dashboard-layout main {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .dashboard-layout .sidebar-wrapper::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        .dashboard-layout .sidebar-wrapper::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .dashboard-layout .sidebar-wrapper::-webkit-scrollbar-thumb {
+          background: transparent;
+        }
+        .dashboard-layout .sidebar-wrapper {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+      `}</style>
       
       <Sidebar profileRole={profile?.role || 'student'} profileName={profile?.full_name || 'Student'} avatarUrl={profile?.avatar_url} logoutForm={logoutForm} accountTag={accountTag} />
 
       {/* Main Content */}
-      <main style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
+      <main style={{ flex: 1, position: 'relative', overflowY: 'auto', overflowX: 'hidden', height: '100vh' }}>
         {children}
       </main>
     </div>

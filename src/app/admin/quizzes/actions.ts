@@ -128,7 +128,12 @@ export async function toggleQuizPublish(formData: FormData) {
 export async function softDeleteQuiz(formData: FormData) {
   const quizId = formData.get('quiz_id') as string;
   const supabaseAdmin = getAdminClient();
-  const { error } = await supabaseAdmin.from('quizzes').update({ is_archived: true }).eq('id', quizId);
-  if (error) throw new Error(error.message);
-  revalidatePath('/admin/quizzes');
+  try {
+    const { error } = await supabaseAdmin.from('quizzes').update({ is_archived: true }).eq('id', quizId);
+    if (error) throw new Error(error.message);
+    revalidatePath('/admin/quizzes');
+  } catch (err: any) {
+    console.error('Archive quiz error:', err.message);
+    throw err;
+  }
 }

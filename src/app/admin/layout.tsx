@@ -36,11 +36,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <style>{`
+        [data-admin-container] main::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        [data-admin-container] main::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        [data-admin-container] main::-webkit-scrollbar-thumb {
+          background: transparent;
+        }
+        [data-admin-container] main {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+      `}</style>
       <Sidebar adminProfile={profile} />
-      <div style={{ flexGrow: 1, maxHeight: '100vh', overflowY: 'auto' }}>
+      <main style={{ flexGrow: 1, height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
         {children}
-      </div>
+      </main>
     </div>
   );
 }

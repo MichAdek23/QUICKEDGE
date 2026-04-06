@@ -23,9 +23,11 @@ export default function Sidebar({ profileRole, profileName, avatarUrl, logoutFor
          <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 45 }} />
       )}
 
-      <aside className={`sidebar-wrapper ${isOpen ? 'open' : ''}`}>
+      <aside className={`sidebar-wrapper ${isOpen ? 'open' : ''}`} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', marginBottom: '2rem', letterSpacing: '0.05em' }}>QUICK-HEDGE</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', justifyContent: 'center' }}>
+            <img src="/logo12.png" alt="QuickEdge" style={{ width: '100px', height: '40px' }} />
+          </div>
 
           {avatarUrl ? (
              <img src={avatarUrl} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.1)', flexShrink: 0, marginBottom: '1rem' }} />
@@ -73,6 +75,14 @@ export default function Sidebar({ profileRole, profileName, avatarUrl, logoutFor
       </aside>
       
       <style dangerouslySetInnerHTML={{__html: `
+        .sidebar-wrapper::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        .sidebar-wrapper {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
         .sidebar-link {
           display: flex;
           align-items: center;

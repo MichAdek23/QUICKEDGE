@@ -70,12 +70,12 @@ export default function QuizCMSClient({ materials, quizzes }: { materials: any[]
                     {/* Edit */}
                     <button type="button" onClick={() => setEditQuiz(quiz)} className="btn-secondary" style={{ padding: '0.4rem 0.8rem' }}>Edit</button>
                     {/* Publish Toggle */}
-                    <form action={toggleQuizPublish} method="post" style={{ display: 'inline' }}>
+                    <form action={toggleQuizPublish} style={{ display: 'inline' }}>
                       <input type="hidden" name="quiz_id" value={quiz.id} />
                       <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.8rem' }}>{quiz.published ? 'Unpublish' : 'Publish'}</button>
                     </form>
                     {/* Soft Delete */}
-                    <form action={softDeleteQuiz} method="post" style={{ display: 'inline' }} onSubmit={e => { if(!confirm('Archive this quiz?')) e.preventDefault(); }}>
+                    <form action={softDeleteQuiz} style={{ display: 'inline' }} onSubmit={e => { if(!confirm('Archive this quiz?')) e.preventDefault(); }}>
                       <input type="hidden" name="quiz_id" value={quiz.id} />
                       <button type="submit" className="btn-danger" style={{ padding: '0.4rem 0.8rem' }}>Archive</button>
                     </form>
