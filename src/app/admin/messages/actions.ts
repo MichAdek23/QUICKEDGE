@@ -89,7 +89,7 @@ async function sendEmailReply(toEmail: string, toName: string, message: string) 
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     const { data, error } = await resend.emails.send({
-      from: 'QUICKEDGE <onboarding@resend.dev>',
+      from: 'QUICKEDGE <noreply@quick-hedgeconsulting.com>',
       to: [toEmail],
       subject: `Reply to your message - QUICKEDGE`,
       html: `
