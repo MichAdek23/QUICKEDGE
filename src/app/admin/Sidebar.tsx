@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Sidebar({ adminProfile }: { adminProfile?: { full_name?: string, avatar_url?: string } }) {
+  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -35,7 +37,18 @@ export default function Sidebar({ adminProfile }: { adminProfile?: { full_name?:
 
   return (
     <>
-    <aside style={{ width: '280px', borderRight: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.8)', backdropFilter: 'blur(10px)', padding: '2rem 1.5rem', overflowY: 'auto', overflowX: 'hidden' }}>
+      <div className="mobile-top-bar">
+        <button onClick={() => setIsOpen(!isOpen)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem', marginLeft: '-0.5rem' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <span style={{ fontSize: '0.95rem', fontWeight: 700 }}>Admin Menu</span>
+      </div>
+
+      {isOpen && (
+         <div onClick={() => setIsOpen(false)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 45 }} />
+      )}
+
+      <aside className={`sidebar-wrapper ${isOpen ? 'open' : ''}`} style={{ padding: '2rem 1.5rem' }}>
        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
          <img src="/logo12.png" alt="QuickEdge" style={{ width: '100px', height: '40px' }} />
          </div>

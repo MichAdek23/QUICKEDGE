@@ -36,19 +36,33 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div className="admin-layout">
       <style>{`
-        [data-admin-container] main::-webkit-scrollbar {
+        .admin-layout main::-webkit-scrollbar {
           width: 0;
           height: 0;
         }
-        [data-admin-container] main::-webkit-scrollbar-track {
+        .admin-layout main::-webkit-scrollbar-track {
           background: transparent;
         }
-        [data-admin-container] main::-webkit-scrollbar-thumb {
+        .admin-layout main::-webkit-scrollbar-thumb {
           background: transparent;
         }
-        [data-admin-container] main {
+        .admin-layout main {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .admin-layout .sidebar-wrapper::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        .admin-layout .sidebar-wrapper::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .admin-layout .sidebar-wrapper::-webkit-scrollbar-thumb {
+          background: transparent;
+        }
+        .admin-layout .sidebar-wrapper {
           scrollbar-width: none;
           -ms-overflow-style: none;
         }

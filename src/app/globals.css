@@ -92,7 +92,8 @@ button {
 }
 
 /* --- Dashboard Responsiveness --- */
-.dashboard-layout {
+.dashboard-layout,
+.admin-layout {
   display: flex;
   height: 100vh;
   background-color: var(--background);
@@ -101,7 +102,8 @@ button {
 }
 
 @media (min-width: 1024px) {
-  .dashboard-layout {
+  .dashboard-layout,
+  .admin-layout {
     flex-direction: row;
   }
 }
@@ -192,6 +194,10 @@ main {
 
 @media (min-width: 1024px) {
   .dashboard-layout main {
+    margin-left: 260px;
+    height: 100vh;
+  }
+  .admin-layout main {
     margin-left: 260px;
     height: 100vh;
   }
