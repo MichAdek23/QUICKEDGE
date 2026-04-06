@@ -182,7 +182,8 @@ CREATE TABLE IF NOT EXISTS public.quiz_attempts (
   total INTEGER NOT NULL,
   passed BOOLEAN DEFAULT false NOT NULL,
   answers JSONB DEFAULT '{}'::jsonb NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(quiz_id, user_id) -- Prevents duplicate attempts by same user on same quiz
 );
 
 ALTER TABLE public.quiz_attempts ENABLE ROW LEVEL SECURITY;

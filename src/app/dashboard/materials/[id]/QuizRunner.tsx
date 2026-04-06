@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SubscriptionCTA from '@/app/dashboard/SubscriptionCTA';
 import { createClient } from '@/utils/supabase/client';
+import { submitQuizAttempt } from './actions';
 
 export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { quiz: any, isSubscribed: boolean, userEmail: string | undefined, userId: string }) {
   const [started, setStarted] = useState(false);
@@ -10,9 +11,72 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: number }>({});
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [existingAttempt, setExistingAttempt] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const supabase = createClient();
   const questions = quiz.quiz_questions || [];
+
+  // Check for existing attempt on component mount
+  useEffect(() => {
+    const checkExistingAttempt = async () => {
+      const { data: attempts } = await supabase
+        .from('quiz_attempts')
+        .select('id, score, total, created_at, passed')
+        .eq('quiz_id', quiz.id)
+        .eq('user_id', userId)
+        .single();
+      
+      setExistingAttempt(attempts);
+      setLoading(false);
+    };
+    
+    if (userId && quiz.id) {
+      checkExistingAttempt();
+    } else {
+      setLoading(false);
+    }
+  }, [quiz.id, userId, supabase]);
+
+  if (loading) {
+    return (
+      <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center' }}>
+        <p style={{ color: '#a1a1aa' }}>Checking quiz status...</p>
+      </div>
+    );
+  }
+
+  if (existingAttempt) {
+    const percentage = (existingAttempt.score / existingAttempt.total) * 100;
+    const passed = percentage >= 70;
+    
+    return (
+      <div className="glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center', borderTop: passed ? '4px solid #10b981' : '4px solid #ef4444' }}>
+        <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem', color: passed ? '#10b981' : '#f472b6' }}>
+          Assessment Completed
+        </h3>
+        <p style={{ fontSize: '1.2rem', color: '#e4e4e7', marginBottom: '2rem' }}>
+          You have already completed this quiz. Your score is permanently recorded.
+        </p>
+        <div style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--card-border)', display: 'inline-block', textAlign: 'left', minWidth: '300px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <span style={{ color: '#a1a1aa' }}>Score:</span>
+            <span style={{ fontWeight: 800 }}>{existingAttempt.score} / {existingAttempt.total}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <span style={{ color: '#a1a1aa' }}>Percentage:</span>
+            <span style={{ fontWeight: 800, color: passed ? '#10b981' : '#ef4444' }}>{percentage.toFixed(0)}%</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: '#a1a1aa' }}>Date:</span>
+            <span style={{ fontWeight: 600 }}>{new Date(existingAttempt.created_at).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isSubscribed) {
     return (
@@ -48,6 +112,11 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
   };
 
   const submitQuiz = async () => {
+    if (submitting) return; // Prevent double submission
+    
+    setSubmitting(true);
+    setError(null);
+    
     // Calculate Score locally for immediate feedback
     let calculatedScore = 0;
     questions.forEach((q: any) => {
@@ -57,22 +126,42 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
     });
 
     setScore(calculatedScore);
-    setCompleted(true);
 
-    // Save to database
+    // Save to database using server action for guaranteed insertion
     try {
-       await supabase.from('quiz_attempts').insert({
-          quiz_id: quiz.id,
-          user_id: userId,
-          score: calculatedScore,
-          total: questions.length,
-          passed: calculatedScore / questions.length >= 0.7,
-          answers: selectedAnswers,
-       });
-    } catch (e) {
-       console.error("Failed to log score", e);
+      const result = await submitQuizAttempt(
+        quiz.id,
+        calculatedScore,
+        questions.length,
+        selectedAnswers
+      );
+
+      if (result.error) {
+        console.error("Server action error:", result.error);
+        setError(`Submission failed: ${result.error}`);
+        setSubmitting(false);
+        return;
+      }
+
+      setCompleted(true);
+    } catch (err) {
+      console.error("Network error:", err);
+      setError("Network timeout. Please check your connection and try again.");
+      setSubmitting(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center' }}>
+        <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '1rem', color: '#ef4444' }}>Submission Error</h3>
+        <p style={{ color: '#e4e4e7', marginBottom: '1.5rem' }}>{error}</p>
+        <button onClick={() => setError(null)} className="btn-primary">
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   if (completed) {
      const percentage = (score / questions.length) * 100;
@@ -84,9 +173,7 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
             {passed ? 'Outstanding!' : 'Keep Practicing!'}
           </h3>
           <p style={{ fontSize: '1.2rem', color: '#e4e4e7', marginBottom: '2rem' }}>You scored {score} out of {questions.length} ({percentage.toFixed(0)}%)</p>
-          <button onClick={() => { setCompleted(false); setSelectedAnswers({}); setCurrentQuestionIdx(0); }} className="btn-secondary">
-             Retake Quiz
-          </button>
+          <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>Your score has been permanently recorded. Retakes are not allowed.</p>
        </div>
      );
   }
@@ -159,10 +246,11 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
           {isLastQuestion ? (
             <button 
                onClick={submitQuiz}
-               disabled={selectedAnswers[currentQ.id] === undefined}
+               disabled={selectedAnswers[currentQ.id] === undefined || submitting}
                className="btn-primary"
+               style={{ opacity: submitting ? 0.7 : 1 }}
             >
-               Submit Answers
+               {submitting ? 'Submitting...' : 'Finalize & Submit'}
             </button>
           ) : (
             <button 

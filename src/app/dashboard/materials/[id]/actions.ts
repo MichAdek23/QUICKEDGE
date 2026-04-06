@@ -3,8 +3,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-export async function deployQuizAttempt(quizId: string, score: number, total: number, answers: Record<string, number> = {}) {
-  console.log("=== DEPLOY QUIZ ATTEMPT START ===");
+export async function submitQuizAttempt(quizId: string, score: number, total: number, answers: Record<string, number> = {}) {
+  console.log("=== MATERIALS QUIZ SUBMISSION START ===");
   console.log("Quiz ID:", quizId);
   console.log("Score:", score, "Total:", total);
   console.log("Answers:", answers);
@@ -19,7 +19,7 @@ export async function deployQuizAttempt(quizId: string, score: number, total: nu
 
   console.log("User authenticated:", authData.user.id);
 
-  // 1. Defensively check again on the backend if they already tried to take this!
+  // Check if attempt already exists
   const { data: existingAttempts, error: checkError } = await supabase
     .from('quiz_attempts')
     .select('id')
@@ -35,13 +35,13 @@ export async function deployQuizAttempt(quizId: string, score: number, total: nu
 
   if (existingAttempts && existingAttempts.length > 0) {
      console.log("User already attempted this quiz");
-     return { error: 'FATAL: You have already completed this assessment. Re-attempts are blocked at the database level.' };
+     return { error: 'You have already completed this quiz.' };
   }
 
   const passed = total > 0 ? score / total >= 0.7 : false;
   console.log("Passed:", passed);
 
-  // 2. Commit payload
+  // Insert attempt
   const insertData = {
     quiz_id: quizId,
     user_id: authData.user.id,
@@ -58,12 +58,13 @@ export async function deployQuizAttempt(quizId: string, score: number, total: nu
   console.log("Insert result:", { data, error });
 
   if (error) {
-     console.error("Telemetry failure:", error);
-     return { error: `Failed to record the final attempt: ${error.message}` };
+     console.error("Database insertion error:", error);
+     return { error: `Failed to record quiz attempt: ${error.message}` };
   }
 
-  console.log("=== DEPLOY QUIZ ATTEMPT SUCCESS ===");
+  console.log("=== MATERIALS QUIZ SUBMISSION SUCCESS ===");
 
+  revalidatePath('/dashboard/materials');
   revalidatePath('/dashboard/scores');
   revalidatePath('/admin/quizzes');
   
