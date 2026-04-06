@@ -1,5 +1,6 @@
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js';
 import { markMessageAsRead, deleteMessage } from './actions';
+import ReplyForm from './ReplyForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,19 @@ export default async function AdminMessagesPage() {
     .from('contact_messages')
     .select('*')
     .order('created_at', { ascending: false });
+
+  // Get replies for each message
+  const messagesWithReplies = await Promise.all(
+    (messages || []).map(async (msg) => {
+      const { data: replies } = await supabaseAdmin
+        .from('message_replies')
+        .select('*')
+        .eq('message_id', msg.id)
+        .order('created_at', { ascending: true });
+      
+      return { ...msg, replies: replies || [] };
+    })
+  );
 
   if (error) {
     console.error("Error fetching messages:", error);
@@ -28,7 +42,7 @@ export default async function AdminMessagesPage() {
           </div>
        </header>
 
-       {(!messages || messages.length === 0) ? (
+       {(!messagesWithReplies || messagesWithReplies.length === 0) ? (
           <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3f3f46" strokeWidth="1.5" style={{ margin: '0 auto 1.5rem auto' }}><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line></svg>
              <h3 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '1.2rem' }}>No Transmissions Available</h3>
@@ -36,7 +50,7 @@ export default async function AdminMessagesPage() {
           </div>
        ) : (
           <div style={{ display: 'grid', gap: '1rem' }}>
-             {messages.map((msg) => (
+             {messagesWithReplies.map((msg) => (
                 <div key={msg.id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', gap: '1.5rem', borderLeft: msg.is_read ? '4px solid transparent' : '4px solid #8b5cf6', background: msg.is_read ? 'rgba(255,255,255,0.01)' : 'rgba(139, 92, 246, 0.05)' }}>
                    
                    <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -53,9 +67,51 @@ export default async function AdminMessagesPage() {
                       <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.25rem', borderRadius: '12px', color: '#d4d4d8', fontSize: '0.95rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                         {msg.message}
                       </div>
+
+                      {/* Show replies */}
+                      {msg.replies && msg.replies.length > 0 && (
+                        <div style={{ marginTop: '1rem' }}>
+                          <h4 style={{ color: '#a1a1aa', fontSize: '0.85rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Conversation ({msg.replies.length} {msg.replies.length === 1 ? 'reply' : 'replies'})
+                          </h4>
+                          {msg.replies.map((reply) => (
+                            <div key={reply.id} style={{ 
+                              background: reply.reply_from === 'admin' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                              padding: '1rem', 
+                              borderRadius: '8px', 
+                              marginBottom: '0.5rem',
+                              borderLeft: `3px solid ${reply.reply_from === 'admin' ? '#8b5cf6' : '#6b7280'}`,
+                              fontSize: '0.9rem'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <span style={{ color: reply.reply_from === 'admin' ? '#8b5cf6' : '#a1a1aa', fontWeight: 600, fontSize: '0.8rem' }}>
+                                  {reply.reply_from === 'admin' ? 'Admin' : 'User'}
+                                </span>
+                                <span style={{ color: '#71717a', fontSize: '0.75rem' }}>
+                                  {new Date(reply.created_at).toLocaleString()}
+                                </span>
+                              </div>
+                              <div style={{ color: '#d4d4d8', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                                {reply.reply_text}
+                              </div>
+                              {reply.sent_via_email && (
+                                <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#10b981' }}>
+                                  ✓ Also sent via email
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                    </div>
 
                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', justifyContent: 'center' }}>
+                      <ReplyForm
+                        messageId={msg.id}
+                        recipientEmail={msg.email}
+                        recipientName={msg.name}
+                      />
+
                       <form action={markMessageAsRead}>
                          <input type="hidden" name="id" value={msg.id} />
                          <input type="hidden" name="is_read" value={msg.is_read ? 'false' : 'true'} />

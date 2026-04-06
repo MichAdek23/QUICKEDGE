@@ -237,10 +237,25 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
   email TEXT NOT NULL,
   message TEXT NOT NULL,
   is_read BOOLEAN DEFAULT false NOT NULL,
+  parent_message_id UUID REFERENCES public.contact_messages(id) ON DELETE SET NULL,
+  reply_from TEXT CHECK (reply_from IN ('user', 'admin')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+-- No public policies needed since Next.js Server Actions use Admin Role to bypass RLS and interact safely.
+
+-- 15. MESSAGE REPLIES TABLE
+CREATE TABLE IF NOT EXISTS public.message_replies (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  message_id UUID REFERENCES public.contact_messages(id) ON DELETE CASCADE NOT NULL,
+  reply_text TEXT NOT NULL,
+  reply_from TEXT CHECK (reply_from IN ('user', 'admin')) NOT NULL,
+  sent_via_email BOOLEAN DEFAULT false NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.message_replies ENABLE ROW LEVEL SECURITY;
 -- No public policies needed since Next.js Server Actions use Admin Role to bypass RLS and interact safely.
 
 -- 14. GLOBAL REALTIME MATRIX
