@@ -54,7 +54,6 @@ export async function signup(formData: FormData) {
     options: {
       data: {
         full_name: formData.get('name') as string,
-        mat_number: formData.get('mat_number') as string,
       }
     }
   }
@@ -69,7 +68,6 @@ export async function signup(formData: FormData) {
   if (authData?.user?.id) {
     await ensureProfileExistsForAuthUser(authData.user, {
       full_name: data.options?.data?.full_name,
-      mat_number: data.options?.data?.mat_number,
       role: 'student',
     })
   }
