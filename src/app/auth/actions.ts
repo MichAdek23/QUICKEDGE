@@ -5,6 +5,37 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
+async function ensureProfileExists(supabaseAdmin: any, userId: string, profileData: { full_name?: string, mat_number?: string, avatar_url?: string, role?: string }) {
+  const { data: existingProfile, error: profileSelectError } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profileSelectError) {
+    console.error('Profile lookup failed:', profileSelectError)
+    return
+  }
+
+  if (existingProfile) {
+    return
+  }
+
+  const { error: profileInsertError } = await supabaseAdmin
+    .from('profiles')
+    .insert({
+      id: userId,
+      full_name: profileData.full_name,
+      mat_number: profileData.mat_number,
+      avatar_url: profileData.avatar_url,
+      role: profileData.role ?? 'student',
+    })
+
+  if (profileInsertError) {
+    console.error('Profile creation fallback failed:', profileInsertError)
+  }
+}
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
@@ -59,10 +90,23 @@ export async function signup(formData: FormData) {
   }
   const nextTarget = formData.get('next') as string | null;
 
-  const { error } = await supabase.auth.signUp(data)
+  const { error, data: authData } = await supabase.auth.signUp(data)
 
   if (error) {
     redirect('/signup?error=' + encodeURIComponent(error.message))
+  }
+
+  if (authData?.user?.id && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const supabaseAdmin = createSupabaseAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    await ensureProfileExists(supabaseAdmin, authData.user.id, {
+      full_name: data.options?.data?.full_name,
+      mat_number: data.options?.data?.mat_number,
+      role: 'student',
+    })
   }
 
   revalidatePath('/dashboard', 'layout')
