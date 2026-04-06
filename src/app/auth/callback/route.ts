@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { ensureProfileExistsForAuthUser } from '@/utils/supabase/profile'
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 
 export async function GET(request: Request) {
@@ -47,32 +48,8 @@ export async function GET(request: Request) {
       });
     }
 
-    if (data.user?.id && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const supabaseAdmin = createSupabaseAdminClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      );
-
-      const metadata = (data.user.raw_user_meta_data || data.user.user_metadata || {}) as Record<string, any>
-      const fullName = metadata.full_name || metadata.name || metadata.profile?.name || data.user.email?.split('@')[0] || 'New User'
-      const avatarUrl = metadata.avatar_url || metadata.picture || metadata.profile?.picture || null
-      const matNumber = metadata.mat_number || null
-
-      const { data: existingProfile, error: profileSelectError } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .maybeSingle()
-
-      if (!profileSelectError && !existingProfile) {
-        await supabaseAdmin.from('profiles').insert({
-          id: data.user.id,
-          full_name: fullName,
-          avatar_url: avatarUrl,
-          mat_number: matNumber,
-          role: 'student',
-        })
-      }
+    if (data.user?.id) {
+      await ensureProfileExistsForAuthUser(data.user)
     }
   }
 

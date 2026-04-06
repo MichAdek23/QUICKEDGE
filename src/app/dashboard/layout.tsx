@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { logout } from '@/app/auth/actions';
+import { ensureProfileExistsForAuthUser } from '@/utils/supabase/profile';
 
 import Sidebar from './Sidebar';
 
@@ -12,11 +13,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
   
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('is_subscribed, full_name, role, avatar_url')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
+
+  if (!profile) {
+    await ensureProfileExistsForAuthUser(user)
+    const { data: refreshedProfile } = await supabase
+      .from('profiles')
+      .select('is_subscribed, full_name, role, avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    profile = refreshedProfile
+  }
 
   const isSubscribed = profile?.is_subscribed || profile?.role === 'admin';
 
