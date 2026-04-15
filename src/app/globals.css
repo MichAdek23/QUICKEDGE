@@ -230,3 +230,30 @@ main {
 .animate-fade-in {
   animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+.responsive-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  .responsive-table table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr {
+    display: block;
+    width: 100%;
+  }
+  .responsive-table thead { display: none; }
+  .responsive-table tr { margin-bottom: 1rem; border: 1px solid var(--card-border); border-radius: 12px; padding: 0.5rem; }
+  .responsive-table td {
+    padding-left: 50%;
+    position: relative;
+    text-align: left;
+  }
+  .responsive-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 1rem;
+    font-weight: 600;
+    color: #a1a1aa;
+  }
+}
