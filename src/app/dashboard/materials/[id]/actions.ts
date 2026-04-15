@@ -28,7 +28,7 @@ export async function submitQuizAttempt(quizId: string, score: number, total: nu
 
   console.log("Existing attempts check:", { existingAttempts, checkError });
 
-  if (checkError) {
+  if (checkError && checkError.code !== 'PGRST116') {
     console.error("Error checking existing attempts:", checkError);
     return { error: `Database check failed: ${checkError.message}` };
   }
@@ -41,7 +41,7 @@ export async function submitQuizAttempt(quizId: string, score: number, total: nu
   const passed = total > 0 ? score / total >= 0.7 : false;
   console.log("Passed:", passed);
 
-  // Insert attempt
+  // Insert attempt - try with answers first, fallback without if schema cache issue
   const insertData = {
     quiz_id: quizId,
     user_id: authData.user.id,
@@ -53,7 +53,21 @@ export async function submitQuizAttempt(quizId: string, score: number, total: nu
   
   console.log("Inserting data:", insertData);
 
-  const { data, error } = await supabase.from('quiz_attempts').insert(insertData).select();
+  let { data, error } = await supabase.from('quiz_attempts').insert(insertData).select();
+
+  // Fallback: If schema cache error, try without answers field
+  if (error && (error.message?.includes('answers') || error.message?.includes('passed'))) {
+    console.warn("Schema cache lag detected. Retrying without optional fields...");
+    const fallbackData = {
+      quiz_id: quizId,
+      user_id: authData.user.id,
+      score,
+      total,
+    };
+    const result = await supabase.from('quiz_attempts').insert(fallbackData).select();
+    data = result.data;
+    error = result.error;
+  }
 
   console.log("Insert result:", { data, error });
 

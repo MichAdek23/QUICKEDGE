@@ -24,7 +24,21 @@ export default async function BlogIndexPage() {
       />
 
       <div style={{ maxWidth: '1200px', margin: '-5rem auto 0 auto', position: 'relative', zIndex: 5, padding: '0 2rem 6rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+        <style>{`
+          .blog-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+          }
+
+          @media (max-width: 767px) {
+            .blog-cards-grid {
+              grid-template-columns: 1fr;
+              gap: 1.5rem;
+            }
+          }
+        `}</style>
+        <div className="blog-cards-grid">
           {blogs?.map((post: any) => (
              <Link href={`/blog/${post.slug}`} key={post.id} style={{ textDecoration: 'none' }}>
                 <article className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s', border: '1px solid rgba(255,255,255,0.05)' }}>

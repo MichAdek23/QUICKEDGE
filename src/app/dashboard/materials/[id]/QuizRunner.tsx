@@ -125,16 +125,20 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
        }
     });
 
+    console.log("Quiz submission starting. Score:", calculatedScore, "Total:", questions.length);
     setScore(calculatedScore);
 
     // Save to database using server action for guaranteed insertion
     try {
+      console.log("Calling submitQuizAttempt with quiz ID:", quiz.id);
       const result = await submitQuizAttempt(
         quiz.id,
         calculatedScore,
         questions.length,
         selectedAnswers
       );
+
+      console.log("Server action result:", result);
 
       if (result.error) {
         console.error("Server action error:", result.error);
@@ -143,20 +147,22 @@ export default function QuizRunner({ quiz, isSubscribed, userEmail, userId }: { 
         return;
       }
 
+      console.log("Quiz submission successful!");
       setCompleted(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Network error:", err);
-      setError("Network timeout. Please check your connection and try again.");
+      setError(`Network error: ${err.message || 'Please check your connection and try again.'}`);
       setSubmitting(false);
     }
   };
 
   if (error) {
     return (
-      <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center' }}>
+      <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center', borderTop: '4px solid #ef4444' }}>
         <h3 style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '1rem', color: '#ef4444' }}>Submission Error</h3>
-        <p style={{ color: '#e4e4e7', marginBottom: '1.5rem' }}>{error}</p>
-        <button onClick={() => setError(null)} className="btn-primary">
+        <p style={{ color: '#e4e4e7', marginBottom: '0.5rem' }}>{error}</p>
+        <p style={{ color: '#a1a1aa', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Please try again or contact support if the issue persists.</p>
+        <button onClick={() => { setError(null); setSubmitting(false); }} className="btn-primary" style={{ padding: '0.75rem 2rem' }}>
           Try Again
         </button>
       </div>

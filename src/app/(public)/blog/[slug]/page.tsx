@@ -15,6 +15,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     .eq('slug', routeParams.slug)
     .single();
 
+  // Fetch admin profile for consistent branding
+  const { data: adminProfile } = await supabase
+    .from('profiles')
+    .select('full_name, avatar_url')
+    .eq('role', 'admin')
+    .single();
+
   if (error || !post) {
     notFound();
   }
@@ -27,7 +34,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       {/* Dynamic Immersive Thumbnail Hero */}
       <section style={{ 
          width: '100%', 
-         height: '70vh', 
+         height: '100vh', 
          position: 'relative', 
          display: 'flex', 
          alignItems: 'flex-end', 
@@ -51,11 +58,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
            </h1>
            
            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(45deg, #ef4444, #f43f5e)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.4)' }}>
-                 {post.profiles?.[0]?.full_name?.[0] || 'A'}
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: adminProfile?.avatar_url ? `url(${adminProfile.avatar_url}) center/cover no-repeat` : 'linear-gradient(45deg, #ef4444, #f43f5e)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.4)' }}>
+                 {adminProfile?.avatar_url ? '' : (adminProfile?.full_name?.[0] || 'A')}
               </div>
               <div>
-                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>{post.profiles?.[0]?.full_name || 'Admin'}</div>
+                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>{adminProfile?.full_name || 'Admin'}</div>
                  <div style={{ fontSize: '0.9rem', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                  </div>

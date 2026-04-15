@@ -40,7 +40,7 @@ export default async function DashboardCataloguePage() {
       }
     }
   } catch (error) {
-    console.error("Database connection failed.");
+    console.error("Dashboard data fetch error:", error);
   }
 
   if (!user) return null;

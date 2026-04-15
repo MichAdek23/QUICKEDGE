@@ -60,12 +60,19 @@ export default function StrictQuizRunner({ quiz }: { quiz: any }) {
   };
 
   const submitQuiz = async () => {
+    console.log("Strict quiz submission starting...");
     setIsSubmitting(true);
     const score = calculateScore(selectedAnswers);
+    console.log("Calculated score:", score, "out of", questions.length);
+    
     const res = await deployQuizAttempt(quiz.id, score, questions.length, selectedAnswers);
+    console.log("Deploy result:", res);
+    
     if (res.error) {
+       console.error("Deployment error:", res.error);
        setFatalError(res.error);
     } else {
+       console.log("Quiz submitted successfully");
        setFinalScore(score);
        setPhase('COMPLETED');
     }

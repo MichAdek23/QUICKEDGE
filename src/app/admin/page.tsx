@@ -13,6 +13,18 @@ export default async function AdminDashboardOverview() {
   const { count: materialsCount } = await supabase.from('materials').select('*', { count: 'exact', head: true });
   const { count: activeQuizzes } = await supabase.from('quizzes').select('*', { count: 'exact', head: true });
 
+  // Student Telemetry Data
+  const { count: totalQuizAttempts } = await supabase.from('quiz_attempts').select('*', { count: 'exact', head: true });
+  const { data: quizAttempts } = await supabase.from('quiz_attempts').select('score, total, passed, created_at').order('created_at', { ascending: false }).limit(100);
+  
+  const averageScore = quizAttempts && quizAttempts.length > 0 
+    ? (quizAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.total), 0) / quizAttempts.length * 100).toFixed(1)
+    : '0.0';
+  
+  const passRate = quizAttempts && quizAttempts.length > 0 
+    ? (quizAttempts.filter(a => a.passed).length / quizAttempts.length * 100).toFixed(1)
+    : '0.0';
+
   const { data: recentProfiles } = await supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(6);
 
   const conversionRate = studentCount ? ((premiumCount || 0) / studentCount * 100).toFixed(1) : '0.0';
@@ -78,6 +90,21 @@ export default async function AdminDashboardOverview() {
           </div>
         </div>
 
+        <div className="glass-panel" style={{ padding: '2rem', borderTop: '4px solid #f59e0b' }}>
+          <h3 style={{ color: '#a1a1aa', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Student Telemetry Stream</h3>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f4f4f5', marginBottom: '0.5rem' }}>
+            {totalQuizAttempts} <span style={{ fontSize: '1rem', fontWeight: 'normal', color: '#a1a1aa' }}>Total Attempts</span>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem' }}>
+            <div style={{ color: '#10b981' }}>
+              <span style={{ fontWeight: 600 }}>{averageScore}%</span> <span style={{ color: '#a1a1aa' }}>Avg Score</span>
+            </div>
+            <div style={{ color: '#f59e0b' }}>
+              <span style={{ fontWeight: 600 }}>{passRate}%</span> <span style={{ color: '#a1a1aa' }}>Pass Rate</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Recent Platform Ledger</h2>
@@ -100,6 +127,55 @@ export default async function AdminDashboardOverview() {
             ))}
             {!payments || payments.length === 0 && (
               <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa' }}>No payments processed yet.</td></tr>
+            )}
+           </tbody>
+        </table>
+      </div>
+
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '4rem', marginBottom: '1.5rem' }}>Student Telemetry Stream</h2>
+      <div className="glass-panel" style={{ overflow: 'hidden', padding: 0 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--card-border)' }}>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Score</th>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Status</th>
+               <th style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(quizAttempts || []).slice(0, 8).map((attempt: any, i: number) => {
+              const percentage = attempt.total > 0 ? (attempt.score / attempt.total * 100).toFixed(0) : '0';
+              const passed = attempt.passed;
+              return (
+                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                   <td style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>
+                     {attempt.score}/{attempt.total} 
+                     <span style={{ color: '#a1a1aa', fontSize: '0.8rem', marginLeft: '0.5rem' }}>({percentage}%)</span>
+                   </td>
+                   <td style={{ padding: '1rem 1.5rem' }}>
+                     <span style={{ 
+                       color: passed ? '#10b981' : '#ef4444', 
+                       background: passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+                       padding: '0.2rem 0.5rem', 
+                       borderRadius: '4px', 
+                       fontSize: '0.8rem' 
+                     }}>
+                       {passed ? 'Passed' : 'Failed'}
+                     </span>
+                   </td>
+                   <td style={{ padding: '1rem 1.5rem', color: '#a1a1aa', fontSize: '0.9rem' }}>
+                     {new Date(attempt.created_at).toLocaleDateString('en-US', { 
+                       month: 'short', 
+                       day: 'numeric',
+                       hour: '2-digit',
+                       minute: '2-digit'
+                     })}
+                   </td>
+                </tr>
+              );
+            })}
+            {!quizAttempts || quizAttempts.length === 0 && (
+              <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#a1a1aa' }}>No quiz attempts recorded yet.</td></tr>
             )}
            </tbody>
         </table>
