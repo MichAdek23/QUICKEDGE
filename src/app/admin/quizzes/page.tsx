@@ -12,17 +12,22 @@ export default async function AdminScoresPage() {
   );
 
   // Fetch massive attempt telemetry
-  const { data: attempts } = await supabaseAdmin
+  const { data: attempts, error } = await supabaseAdmin
     .from('quiz_attempts')
     .select(`
        id,
        score,
        total,
        created_at,
-       profiles ( full_name, mat_number ),
+       profiles ( id, full_name, mat_number ),
        quizzes ( title, materials ( title ) )
     `)
     .order('created_at', { ascending: false });
+
+  console.log("Admin Telemetry Fetch:", { count: attempts?.length, error });
+  if (attempts && attempts.length > 0) {
+    console.log("First attempt sample:", JSON.stringify(attempts[0], null, 2));
+  }
 
   return (
     <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import HeroCarousel from '@/components/HeroCarousel';
 
 export default function LandingPage() {
@@ -132,18 +133,17 @@ export default function LandingPage() {
               transition={{ duration: 0.6 }}
             >
               <div style={{ 
-                width: '100%', 
-                aspectRatio: '1', 
                 borderRadius: '20px', 
-                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                boxShadow: '0 20px 60px rgba(139, 92, 246, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: 700
+                boxShadow: '0 20px 60px rgba(139, 92, 246, 0.4)',
+                overflow: 'hidden',
+                width: 'fit-content',
+                margin: '0 auto'
               }} className="ceo-image">
-                CEO
+                <img 
+                  src="/CEO_png.jpeg" 
+                  alt="CEO Dr Paul Adeleke" 
+                  style={{ display: 'block', width: '100%', maxWidth: '450px', height: 'auto' }} 
+                />
               </div>
             </motion.div>
 
@@ -158,7 +158,10 @@ export default function LandingPage() {
               <p className="ceo-text" style={{ color: '#a1a1aa', lineHeight: 1.8, marginBottom: '2rem' }}>
                 "Quick Hedge was born from a simple observation: the gap between average practitioners and elite performers is not talent, it is data. We have spent years building technology that captures every nuance of performance, translating complexity into clarity. Today, we are democratizing access to the insights that previously only the top 1% could afford. Our mission is simple: equip you with the metrics that matter, the mentorship that shapes winners, and the confidence to dominate your field."
               </p>
-              <p style={{ fontSize: '1rem', color: '#71717a', fontWeight: 600 }}>— Founder & CEO, Quick-Hedge</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <p style={{ fontSize: '1.25rem', color: '#f4f4f5', fontWeight: 800 }}>DR Paul Adeleke</p>
+                <p style={{ fontSize: '0.9rem', color: '#8b5cf6', fontWeight: 700, letterSpacing: '0.05em' }}>BSc.ED MSc.Ed PhD</p>
+              </div>
               <div style={{ marginTop: '2rem' }}>
                 <Link href="/signup" className="btn-primary btn-mobile" style={{ background: 'linear-gradient(45deg, #8b5cf6, #ec4899)', borderRadius: '999px' }}>
                   Get Started Today

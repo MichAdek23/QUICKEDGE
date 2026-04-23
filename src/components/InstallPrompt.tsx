@@ -53,7 +53,7 @@ export default function InstallPrompt() {
   if (!isReadyForInstall || hasDismissed) return null;
 
   return (
-    <AnimatePresence>
+    <>
       <style>{`
         /* Mobile Responsive Styles for Install Prompt */
         @media (max-width: 480px) {
@@ -85,7 +85,9 @@ export default function InstallPrompt() {
           }
         }
       `}</style>
-      <motion.div 
+      <AnimatePresence>
+        <motion.div 
+          key="install-prompt-modal"
         initial={{ opacity: 0, y: 50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -143,6 +145,7 @@ export default function InstallPrompt() {
            </button>
         </div>
       </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }

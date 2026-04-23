@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ScoreBoardClient({ initialAttempts }: { initialAttempts: any[] }) {
+  const router = useRouter();
   const [filterQuery, setFilterQuery] = useState('');
 
   // Explicit Client-side logging to detect data flow
@@ -55,7 +57,14 @@ export default function ScoreBoardClient({ initialAttempts }: { initialAttempts:
                   const quiz = a.quizzes || {};
                   
                   return (
-                    <tr key={a.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: passed ? 'rgba(16, 185, 129, 0.02)' : 'rgba(239, 68, 68, 0.02)' }}>
+                    <tr 
+                      key={a.id} 
+                      style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: passed ? 'rgba(16, 185, 129, 0.02)' : 'rgba(239, 68, 68, 0.02)', cursor: 'pointer' }}
+                      onClick={() => {
+                        console.log("Navigating to student from telemetry:", prof.id);
+                        router.push(`/admin/users/${prof.id}`);
+                      }}
+                    >
                       <td style={{ padding: '1.2rem' }} data-label="Candidate">
                         <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{prof.full_name || 'Ghost Node'}</div>
                         {prof.mat_number && <div style={{ fontSize: '0.75rem', color: '#a1a1aa', fontFamily: 'monospace', marginTop: '0.2rem' }}>{prof.mat_number}</div>}

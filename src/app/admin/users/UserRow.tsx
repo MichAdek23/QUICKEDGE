@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toggleUserRole } from './actions';
 
 export default function UserRow({ user }: { user: any }) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,8 +20,15 @@ export default function UserRow({ user }: { user: any }) {
 
   return (
     <>
-      <tr style={{ background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: expanded ? 'none' : '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }}>
-        <td style={{ padding: '1.2rem', cursor: 'pointer' }} onClick={() => setExpanded(!expanded)}>
+      <tr 
+        style={{ background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: expanded ? 'none' : '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }} 
+        onClick={() => {
+          console.log("Navigating to user:", user.id);
+          router.push(`/admin/users/${user.id}`);
+        }} 
+        className="cursor-pointer"
+      >
+        <td style={{ padding: '1.2rem', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(45deg, #8b5cf6, #ef4444)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
               {user.avatar_url ? (
