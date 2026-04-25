@@ -17,6 +17,7 @@ export async function createMaterial(formData: FormData) {
     let url = formData.get('url') as string;
     const type = formData.get('type') as string;
     const rawFile = formData.get('file');
+    const rawThumbnail = formData.get('thumbnail');
 
     const supabaseAdmin = getAdminClient();
 
@@ -51,8 +52,27 @@ export async function createMaterial(formData: FormData) {
     if (!url) {
       throw new Error("You must provide either a Media File OR a Remote URL.");
     }
+    
+    let thumbnail_url = null;
+    
+    if (rawThumbnail && typeof rawThumbnail === 'object' && 'size' in rawThumbnail && (rawThumbnail as File).size > 0) {
+      const thumbFile = rawThumbnail as File;
+      let fileExt = thumbFile.name?.split('.').pop()?.toLowerCase() || 'png';
+      const thumbPath = `deployments/thumb_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: thumbUploadError } = await supabaseAdmin.storage
+         .from('materials')
+         .upload(thumbPath, thumbFile, { upsert: true, contentType: thumbFile.type || 'image/png' });
+         
+      if (!thumbUploadError) {
+          const { data: thumbUrlData } = supabaseAdmin.storage.from('materials').getPublicUrl(thumbPath);
+          thumbnail_url = thumbUrlData.publicUrl;
+      } else {
+          console.error("THUMBNAIL STORAGE FAULT:", thumbUploadError);
+      }
+    }
 
-    const { error } = await supabaseAdmin.from('materials').insert({ title, description, url, type });
+    const { error } = await supabaseAdmin.from('materials').insert({ title, description, url, type, ...(thumbnail_url && { thumbnail_url }) });
     if (error) throw error;
 
     revalidatePath('/admin/materials');

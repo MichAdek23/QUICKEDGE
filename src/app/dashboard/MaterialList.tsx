@@ -8,6 +8,7 @@ type Material = {
   description: string;
   type: string;
   url?: string;
+  thumbnail_url?: string;
   created_at: string;
 }
 
@@ -94,10 +95,16 @@ export default function MaterialList({ materials, isSubscribed }: { materials: M
           {materials.map((item) => (
             <div key={item.id} className="material-card" onClick={() => handleMaterialClick(item.id)}>
               
-              <div className="material-thumb" style={{ background: getGradient(item.type) }}>
-                {item.type === 'pdf' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1 }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>}
-                {item.type === 'video' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1 }}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>}
-                {item.type === 'image' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1 }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}
+              <div className="material-thumb" style={{ background: item.thumbnail_url ? 'none' : getGradient(item.type) }}>
+                {item.thumbnail_url ? (
+                  <img src={item.thumbnail_url} alt={`${item.title} thumbnail`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 1, position: 'relative' }} />
+                ) : (
+                  <>
+                    {item.type === 'pdf' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1, position: 'relative' }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>}
+                    {item.type === 'video' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1, position: 'relative' }}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>}
+                    {item.type === 'image' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ zIndex: 1, position: 'relative' }}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>}
+                  </>
+                )}
                 <div className="badge">{item.type}</div>
               </div>
 

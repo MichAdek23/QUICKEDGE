@@ -41,6 +41,10 @@ export default async function MaterialsCMSPage() {
                     <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Description Setup</label>
                     <textarea name="description" required className="input-field" rows={4} placeholder="What will they learn?"></textarea>
                   </div>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Thumbnail Image (Optional)</label>
+                    <input type="file" name="thumbnail" accept="image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} />
+                  </div>
                   <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem' }}>Push to Production</button>
                </form>
             </div>
