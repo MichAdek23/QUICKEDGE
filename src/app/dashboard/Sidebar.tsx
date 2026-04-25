@@ -26,7 +26,7 @@ export default function Sidebar({ profileRole, profileName, avatarUrl, logoutFor
       <aside className={`sidebar-wrapper ${isOpen ? 'open' : ''}`} style={{ overflowY: 'auto', overflowX: 'hidden' }}>
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', justifyContent: 'center' }}>
-            <img src="/logo12.png" alt="QuickEdge" style={{ width: '100px', height: '40px' }} />
+            <img src="/images/logo_text.jpeg" alt="QuickEdge" style={{ width: '120px', height: '40px', objectFit: 'contain' }} />
           </div>
 
           {avatarUrl ? (

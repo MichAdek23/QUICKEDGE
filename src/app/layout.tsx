@@ -15,14 +15,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quick-Hedge Platform",
-  description: "Exclusive consultancy, real-time webhooks, and advanced learning materials",
+  metadataBase: new URL('https://quick-hedgeconsulting.com'),
+  title: {
+    default: "Quick-Hedge Consulting",
+    template: "%s | Quick-Hedge Consulting"
+  },
+  description: "Expert consultancy, real-time webhooks, and advanced learning materials",
   applicationName: "Quick-Hedge",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Quick-Hedge",
   },
+  openGraph: {
+    type: "website",
+    siteName: "Quick-Hedge Consulting",
+    locale: "en_US",
+    url: "https://quick-hedgeconsulting.com"
+  },
+  twitter: {
+    card: "summary_large_image",
+  }
 };
 
 export const viewport = {
@@ -37,9 +50,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Quick-Hedge Consulting",
+    "url": "https://quick-hedgeconsulting.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://quick-hedgeconsulting.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
+        <script 
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <script 
           dangerouslySetInnerHTML={{ 
             __html: `

@@ -2,6 +2,16 @@ import Link from 'next/link';
 import { signup, signInWithGoogle } from '../auth/actions';
 import AuthLayout from '@/components/AuthLayout';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+  description: "Create an account to unlock premium consultancy, materials, and real-time assessments.",
+  alternates: {
+    canonical: "/signup"
+  }
+};
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function SignupPage(props: { searchParams: SearchParams }) {

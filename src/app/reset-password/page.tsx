@@ -1,6 +1,16 @@
 import { updatePassword } from '../auth/actions';
 import AuthLayout from '@/components/AuthLayout';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Create a new password for your Quick-Hedge account.",
+  alternates: {
+    canonical: "/reset-password"
+  }
+};
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function ResetPasswordPage(props: { searchParams: SearchParams }) {

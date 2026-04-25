@@ -2,6 +2,16 @@ import Link from 'next/link';
 import { resetPassword } from '../auth/actions';
 import AuthLayout from '@/components/AuthLayout';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Forgot Password",
+  description: "Reset your Quick-Hedge password securely.",
+  alternates: {
+    canonical: "/forgot-password"
+  }
+};
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function ForgotPasswordPage(props: { searchParams: SearchParams }) {

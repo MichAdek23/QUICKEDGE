@@ -2,6 +2,16 @@ import Link from 'next/link';
 import { login, signInWithGoogle } from '../auth/actions';
 import AuthLayout from '@/components/AuthLayout';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Log In",
+  description: "Sign in to Quick-Hedge to access your premium analytics and consultancy materials.",
+  alternates: {
+    canonical: "/login"
+  }
+};
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function LoginPage(props: { searchParams: SearchParams }) {

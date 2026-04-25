@@ -4,6 +4,48 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './blog.css'; 
 
+import { Metadata, ResolvingMetadata } from 'next';
+
+export async function generateMetadata(
+  { params }: { params: { slug: string } | Promise<{ slug: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const routeParams = await Promise.resolve(params);
+  const supabase = await createClient();
+  
+  const { data: post } = await supabase
+    .from('blog_posts')
+    .select('title, content, thumbnail_url')
+    .eq('slug', routeParams.slug)
+    .single();
+
+  if (!post) return { title: 'Post Not Found' };
+
+  // Fallback description from content if no specific description exists
+  const excerpt = post.content ? post.content.substring(0, 150).replace(/#|[*_`]/g, '').trim() + '...' : 'Read this article on Quick-Hedge Consulting.';
+
+  return {
+    title: post.title,
+    description: excerpt,
+    alternates: {
+      canonical: `/blog/${routeParams.slug}`
+    },
+    openGraph: {
+      title: post.title,
+      description: excerpt,
+      url: `/blog/${routeParams.slug}`,
+      images: post.thumbnail_url ? [
+        {
+          url: post.thumbnail_url,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        }
+      ] : [],
+    }
+  };
+}
+
 export default async function BlogPostPage({ params }: { params: { slug: string } | Promise<{ slug: string }> }) {
   const supabase = await createClient();
   

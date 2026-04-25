@@ -3,6 +3,47 @@ import { redirect } from 'next/navigation';
 import SubscriptionCTA from '@/app/dashboard/SubscriptionCTA';
 import Link from 'next/link';
 
+import { Metadata, ResolvingMetadata } from 'next';
+
+export async function generateMetadata(
+  { params }: { params: { id: string } | Promise<{ id: string }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const routeParams = await Promise.resolve(params);
+  // Service Role bypassing RLS might be required if materials table is private
+  // However, createClient() here uses anonymous key. Assuming materials are public-read in Supabase:
+  const supabase = await createClient();
+  
+  const { data: material } = await supabase
+    .from('materials')
+    .select('title, description, thumbnail_url')
+    .eq('id', routeParams.id)
+    .single();
+
+  if (!material) return { title: 'Premium Material Not Found' };
+
+  return {
+    title: material.title,
+    description: material.description,
+    alternates: {
+      canonical: `/dashboard/materials/${routeParams.id}`
+    },
+    openGraph: {
+      title: material.title,
+      description: material.description,
+      url: `/dashboard/materials/${routeParams.id}`,
+      images: material.thumbnail_url ? [
+        {
+          url: material.thumbnail_url,
+          width: 1200,
+          height: 630,
+          alt: material.title,
+        }
+      ] : [],
+    }
+  };
+}
+
 export default async function MaterialDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const supabase = await createClient();

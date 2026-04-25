@@ -2,6 +2,16 @@ import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
 import HeroCarousel from '@/components/HeroCarousel';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Insights & Analysis",
+  description: "Read the latest market insights, trading strategies, and platform updates straight from Quick-Hedge originators.",
+  alternates: {
+    canonical: "/blog"
+  }
+};
+
 export default async function BlogIndexPage() {
   const supabase = await createClient();
   
