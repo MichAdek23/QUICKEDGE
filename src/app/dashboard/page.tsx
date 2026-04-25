@@ -22,25 +22,8 @@ export default async function DashboardCataloguePage() {
       .single();
 
     if (profileData) profile = profileData;
-
-    // Fetch materials for all authenticated users (Freemium logic)
-    const { data: materialData } = await supabase
-      .from('materials')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
-    if (materialData) {
-      materials = materialData;
-      
-      if (!profile.is_subscribed && profile.role !== 'admin') {
-         materials = materials.map((m) => {
-           const { url, ...safeMaterial } = m;
-           return safeMaterial;
-         });
-      }
-    }
   } catch (error) {
-    console.error("Dashboard data fetch error:", error);
+    console.error("Dashboard profile fetch error:", error);
   }
 
   if (!user) return null;
@@ -65,23 +48,26 @@ export default async function DashboardCataloguePage() {
 
       {/* Heavy CTA directly to Materials */}
       <div style={{ 
-        background: 'linear-gradient(135deg, #4f46e5 0%, #ec4899 100%)', 
+        backgroundImage: 'url(/study_cta_bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         borderRadius: '20px', 
-        padding: '3rem 2rem', 
+        padding: '4rem 2rem', 
         marginBottom: '4rem',
         textAlign: 'center',
-        boxShadow: '0 20px 40px rgba(236, 72, 153, 0.2)',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
-        {/* Ambient overlay for texture */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(255,255,255,0.1), transparent)', opacity: 0.5, pointerEvents: 'none' }}></div>
+        {/* Ambient overlay for text legibility */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7))', pointerEvents: 'none' }}></div>
         
-        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '1rem', position: 'relative', zIndex: 1 }}>Study now and always.</h2>
-        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 2rem auto', position: 'relative', zIndex: 1 }}>
+        <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '1rem', position: 'relative', zIndex: 1, textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>Study now and always.</h2>
+        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 2rem auto', position: 'relative', zIndex: 1, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
           Unlock elite resources and study materials, exclusively available through our monthly subscription. Don't fall behind.
         </p>
-        <a href="#materials-section" style={{ 
+        <a href="/dashboard/materials" style={{ 
           display: 'inline-block',
           background: 'white', 
           color: '#09090b', 
@@ -92,7 +78,8 @@ export default async function DashboardCataloguePage() {
           textDecoration: 'none',
           boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
           position: 'relative',
-          zIndex: 1
+          zIndex: 1,
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease'
         }}>
           Explore Resources
         </a>
@@ -138,15 +125,7 @@ export default async function DashboardCataloguePage() {
         </div>
       </section>
       
-      {/* Materials Section */}
-      <section id="materials-section" style={{ scrollMarginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>Study Materials</h2>
-        <p style={{ color: '#a1a1aa', marginBottom: '2rem' }}>Access premium consultancy materials, videos, and PDFs.</p>
-        <MaterialList 
-          materials={materials || []} 
-          isSubscribed={isSubscribed} 
-        />
-      </section>
+
     </div>
   );
 }
