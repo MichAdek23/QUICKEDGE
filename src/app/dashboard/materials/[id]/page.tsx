@@ -70,15 +70,17 @@ export default async function MaterialDetailsPage(props: { params: Promise<{ id:
                  1. Native <object> executes seamlessly on Desktop.
                  2. If mobile OS rejects native object binding, it cascades into the iframe.
                  3. The iframe utilizes Google Docs Viewer to force an HTML5 canvas render of the PDF natively! */
-              <object data={`${material.url}#view=FitH`} type="application/pdf" width="100%" height="800px" style={{ display: 'block' }}>
-                 <iframe 
-                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(material.url)}&embedded=true`} 
-                    width="100%" 
-                    height="800px" 
-                    style={{ border: 'none', display: 'block', backgroundColor: '#fff' }} 
-                 >
-                    <p style={{ color: 'white', padding: '2rem' }}>Your browser does not support inline PDFs. <a href={material.url} style={{ color: '#8b5cf6' }}>Download the PDF</a>.</p>
-                 </iframe>
+              <object data={`${material.url}#toolbar=0&view=FitH`} type="application/pdf" width="100%" height="800px" style={{ display: 'block' }}>
+                 <div style={{ width: '100%', height: '800px', overflow: 'hidden' }}>
+                   <iframe 
+                      src={`https://docs.google.com/viewer?url=${encodeURIComponent(material.url)}&embedded=true`} 
+                      width="100%" 
+                      height="850px" 
+                      style={{ border: 'none', display: 'block', backgroundColor: '#fff', marginTop: '-50px' }} 
+                   >
+                      <p style={{ color: 'white', padding: '2rem', textAlign: 'center' }}>Your browser does not support inline premium PDFs. Please use a modern desktop browser like Chrome or Safari.</p>
+                   </iframe>
+                 </div>
               </object>
             ) : (
               <iframe src={material.url} style={{ width: '100%', height: '800px', border: 'none', backgroundColor: '#fff', display: 'block' }} />
