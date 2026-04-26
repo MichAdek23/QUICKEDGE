@@ -18,6 +18,7 @@ export async function generateMetadata(
     .from('materials')
     .select('title, description, thumbnail_url')
     .eq('id', routeParams.id)
+    .eq('is_published', true)
     .single();
 
   if (!material) return { title: 'Premium Material Not Found' };
@@ -64,6 +65,7 @@ export default async function MaterialDetailsPage(props: { params: Promise<{ id:
     .from('materials')
     .select('*')
     .eq('id', params.id)
+    .eq('is_published', true)
     .single();
 
   if (!material) {

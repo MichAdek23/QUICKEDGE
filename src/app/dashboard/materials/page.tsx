@@ -27,6 +27,7 @@ export default async function MaterialsDirectoryPage() {
     const { data: materialData } = await supabase
       .from('materials')
       .select('*')
+      .eq('is_published', true)
       .order('created_at', { ascending: false });
       
     if (materialData) {

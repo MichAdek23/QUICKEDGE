@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import { createMaterial, deleteMaterial } from './actions';
+import { deleteMaterial, publishMaterial, unpublishMaterial } from './actions';
+import Link from 'next/link';
 
 export default async function MaterialsCMSPage() {
   const supabase = await createClient();
@@ -7,84 +8,70 @@ export default async function MaterialsCMSPage() {
 
   return (
     <main style={{ padding: '3rem 4rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Content Library CMS</h1>
-        <p style={{ color: '#a1a1aa', fontSize: '1.1rem' }}>Publish new PDFs, Videos, or interactive endpoints straight to the user dashboard.</p>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
+        <div>
+           <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Content Library CMS</h1>
+           <p style={{ color: '#a1a1aa', fontSize: '1.1rem' }}>Manage your premium deployments and drafts.</p>
+        </div>
+        <Link href="/admin/materials/new" className="btn-primary" style={{ textDecoration: 'none', padding: '0.8rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Deploy New Material
+        </Link>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '3rem' }}>
-         <div>
-            <div className="glass-panel">
-               <h2 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1.5rem', color: '#f4f4f5' }}>Deploy Material</h2>
-               <form action={createMaterial} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Title</label>
-                    <input type="text" name="title" required className="input-field" placeholder="E.g. Advanced Forex PDF" />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Media (Direct File Upload)</label>
-                    <input type="file" name="file" accept="video/*,application/pdf,image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>OR Remote Media URL (YouTube/Drive)</label>
-                    <input type="url" name="url" className="input-field" placeholder="https://..." />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Type</label>
-                    <select name="type" className="input-field" style={{ appearance: 'auto', backgroundColor: '#18181b' }}>
-                       <option value="pdf">PDF Document</option>
-                       <option value="video">Direct Video</option>
-                       <option value="image">Image Format</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Description Setup</label>
-                    <textarea name="description" required className="input-field" rows={4} placeholder="What will they learn?"></textarea>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', color: '#a1a1aa', marginBottom: '0.5rem', display: 'block' }}>Thumbnail Image (Optional)</label>
-                    <input type="file" name="thumbnail" accept="image/*" className="input-field" style={{ padding: '0.4rem', border: '1px dashed var(--accent)', backgroundColor: 'transparent' }} />
-                  </div>
-                  <button type="submit" className="btn-primary" style={{ marginTop: '0.5rem' }}>Push to Production</button>
-               </form>
-            </div>
-         </div>
-
-         <div>
-           <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-               <thead>
-                 <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--card-border)' }}>
-                   <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase' }}>Material Name</th>
-                   <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase' }}>Type</th>
-                   <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {materials?.map(m => (
-                   <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                     <td style={{ padding: '1.5rem' }}>
-                       <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{m.title}</div>
-                       <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.2rem' }}>{new Date(m.created_at).toLocaleDateString()}</div>
-                     </td>
-                     <td style={{ padding: '1.5rem' }}>
-                        <span style={{ padding: '0.2rem 0.6rem', border: '1px solid var(--card-border)', borderRadius: '4px', fontSize: '0.75rem', textTransform: 'uppercase' }}>{m.type}</span>
-                     </td>
-                     <td style={{ padding: '1.5rem', textAlign: 'right' }}>
-                       <form action={deleteMaterial}>
+      <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--card-border)' }}>
+              <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase' }}>Material Name</th>
+              <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase' }}>Type</th>
+              <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
+              <th style={{ padding: '1.5rem', color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {materials?.map(m => (
+              <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <td style={{ padding: '1.5rem' }}>
+                  <div style={{ fontWeight: 600, color: '#f4f4f5' }}>{m.title}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#a1a1aa', marginTop: '0.2rem' }}>{new Date(m.created_at).toLocaleDateString()}</div>
+                </td>
+                <td style={{ padding: '1.5rem' }}>
+                   <span style={{ padding: '0.2rem 0.6rem', border: '1px solid var(--card-border)', borderRadius: '4px', fontSize: '0.75rem', textTransform: 'uppercase' }}>{m.type}</span>
+                </td>
+                <td style={{ padding: '1.5rem' }}>
+                   {m.is_published ? (
+                      <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>LIVE</span>
+                   ) : (
+                      <span style={{ padding: '0.3rem 0.8rem', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>DRAFT</span>
+                   )}
+                </td>
+                <td style={{ padding: '1.5rem', textAlign: 'right' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                     {m.is_published ? (
+                       <form action={unpublishMaterial}>
                           <input type="hidden" name="id" value={m.id} />
-                          <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>Delete</button>
+                          <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)' }}>Unpublish</button>
                        </form>
-                     </td>
-                   </tr>
-                 ))}
-                 {!materials || materials.length === 0 && (
-                   <tr><td colSpan={3} style={{ padding: '3rem', textAlign: 'center', color: '#a1a1aa' }}>No materials published.</td></tr>
-                 )}
-               </tbody>
-             </table>
-           </div>
-         </div>
+                     ) : (
+                       <form action={publishMaterial}>
+                          <input type="hidden" name="id" value={m.id} />
+                          <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}>Publish</button>
+                       </form>
+                     )}
+                     <form action={deleteMaterial}>
+                        <input type="hidden" name="id" value={m.id} />
+                        <button type="submit" className="btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>Delete</button>
+                     </form>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {!materials || materials.length === 0 && (
+              <tr><td colSpan={4} style={{ padding: '3rem', textAlign: 'center', color: '#a1a1aa' }}>No materials found.</td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </main>
   );

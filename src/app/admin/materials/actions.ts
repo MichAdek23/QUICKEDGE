@@ -72,7 +72,14 @@ export async function createMaterial(formData: FormData) {
       }
     }
 
-    const { error } = await supabaseAdmin.from('materials').insert({ title, description, url, type, ...(thumbnail_url && { thumbnail_url }) });
+    const { error } = await supabaseAdmin.from('materials').insert({ 
+      title, 
+      description, 
+      url, 
+      type, 
+      is_published: false,
+      ...(thumbnail_url && { thumbnail_url }) 
+    });
     if (error) throw error;
 
     revalidatePath('/admin/materials');
@@ -82,6 +89,28 @@ export async function createMaterial(formData: FormData) {
     // Returning void to comply with NextJS <form action> Promise<void> requirement
     return;
   }
+}
+
+export async function publishMaterial(formData: FormData) {
+  const id = formData.get('id') as string;
+  const supabaseAdmin = getAdminClient();
+  
+  const { error } = await supabaseAdmin.from('materials').update({ is_published: true }).eq('id', id);
+  if (error) console.error("Failed to publish material:", error);
+
+  revalidatePath('/admin/materials');
+  revalidatePath('/dashboard');
+}
+
+export async function unpublishMaterial(formData: FormData) {
+  const id = formData.get('id') as string;
+  const supabaseAdmin = getAdminClient();
+  
+  const { error } = await supabaseAdmin.from('materials').update({ is_published: false }).eq('id', id);
+  if (error) console.error("Failed to unpublish material:", error);
+
+  revalidatePath('/admin/materials');
+  revalidatePath('/dashboard');
 }
 
 export async function deleteMaterial(formData: FormData) {
