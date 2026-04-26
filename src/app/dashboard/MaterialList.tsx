@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 
 type Material = {
   id: string;
@@ -10,10 +12,50 @@ type Material = {
   url?: string;
   thumbnail_url?: string;
   created_at: string;
+  is_published?: boolean;
 }
 
-export default function MaterialList({ materials, isSubscribed }: { materials: Material[], isSubscribed: boolean }) {
+export default function MaterialList({ materials: initialMaterials, isSubscribed }: { materials: Material[], isSubscribed: boolean }) {
   const router = useRouter();
+  const [materials, setMaterials] = useState<Material[]>(initialMaterials);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Keep initial props synced if they change
+    setMaterials(initialMaterials);
+  }, [initialMaterials]);
+
+  useEffect(() => {
+    const channel = supabase.channel('realtime_materials')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'materials' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          if (payload.new.is_published) {
+             setMaterials(prev => [payload.new as Material, ...prev].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+          }
+        } else if (payload.eventType === 'UPDATE') {
+          if (payload.new.is_published) {
+             setMaterials(prev => {
+                const existing = prev.find(m => m.id === payload.new.id);
+                if (existing) {
+                   return prev.map(m => m.id === payload.new.id ? payload.new as Material : m);
+                } else {
+                   return [payload.new as Material, ...prev].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                }
+             });
+          } else {
+             // If unpublished, remove from list
+             setMaterials(prev => prev.filter(m => m.id !== payload.new.id));
+          }
+        } else if (payload.eventType === 'DELETE') {
+          setMaterials(prev => prev.filter(m => m.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   const handleMaterialClick = (materialId: string) => {
     router.push(`/dashboard/materials/${materialId}`);

@@ -44,7 +44,7 @@ export default function Sidebar({ profileRole, profileName, avatarUrl, logoutFor
         </div>
         
         <nav style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flexGrow: 1 }}>
-          <Link href="/dashboard" className="sidebar-link" onClick={() => setIsOpen(false)}>
+          <Link href="/dashboard/materials" className="sidebar-link" onClick={() => setIsOpen(false)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{flexShrink: 0}}><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             Material Catalogue
           </Link>
