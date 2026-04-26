@@ -61,14 +61,34 @@ export default async function BlogIndexPage() {
                    )}
                    <div style={{ padding: '2rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1rem' }}>
-                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                            {post.profiles?.[0]?.full_name?.[0] || 'A'}
-                         </div>
-                         <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>
-                            <span style={{ color: '#f4f4f5' }}>{post.profiles?.[0]?.full_name || 'Admin'}</span>
-                            <span style={{ margin: '0 0.5rem' }}>•</span>
-                            <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                         </div>
+                         {(() => {
+                           const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+                           return (
+                             <>
+                               <div style={{ 
+                                 width: '32px', 
+                                 height: '32px', 
+                                 borderRadius: '50%', 
+                                 background: profile?.avatar_url ? `url(${profile.avatar_url}) center/cover no-repeat` : '#ef4444', 
+                                 color: 'white', 
+                                 display: 'flex', 
+                                 alignItems: 'center', 
+                                 justifyContent: 'center', 
+                                 fontWeight: 'bold', 
+                                 fontSize: '0.9rem',
+                                 boxShadow: profile?.avatar_url ? '0 0 0 1px rgba(255,255,255,0.1)' : 'none'
+                               }}>
+                                  {!profile?.avatar_url && (profile?.full_name?.[0] || 'A')}
+                               </div>
+                               <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>
+                                  <span style={{ color: '#f4f4f5' }}>{profile?.full_name || 'Admin'}</span>
+
+                                  <span style={{ margin: '0 0.5rem' }}>•</span>
+                                  <span>{new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                               </div>
+                             </>
+                           );
+                         })()}
                       </div>
                       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f4f4f5', marginBottom: '0.5rem', lineHeight: '1.3' }}>
                          {post.title}
